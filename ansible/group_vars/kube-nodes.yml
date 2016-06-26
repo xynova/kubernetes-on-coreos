@@ -1,0 +1,6 @@
+---
+
+etc_kubernetes_ssl_dir: /etc/kubernetes/ssl
+etc_kubernetes_manifests: /etc/kubernetes/manifests
+srv_kubernetes_manifests: /srv/kubernetes/manifests
+home_kubeconfig_dir: "{{ home_dir}}/.kube"

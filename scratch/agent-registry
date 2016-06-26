@@ -1,0 +1,80 @@
+docker pull registry:2.4.1
+
+docker run -d --restart=always -p 5000:5000 --name registry -v $(pwd)/data:/var/lib/registry registry:2.4.1
+
+docker pull ubuntu && docker tag ubuntu localhost:5000/ubuntu
+
+docker tag gcr.io/google_containers/busybox:latest localhost:5000/busybox
+docker push localhost:5000/busybox
+
+docker tag [OPTIONS] IMAGE[:TAG] [REGISTRYHOST/][USERNAME/]NAME[:TAG]
+docker push NAME[:TAG]
+
+
+my.registry.address:port/repositoryname
+
+
+
+iptables -t nat -A OUTPUT -p tcp --dport 5000 --jump DNAT --to-destination 172.17.4.10:5000
+iptables -t nat -A POSTROUTING -o eth1 -j MASQUERADE
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+
+------------------------------
+
+docker pull localhost:5000/busybox
+
+
+docker pull localhost:5000/hyperkube:v1.2.4
+docker pull gcr.io/google_containers/hyperkube:v1.2.4
+
+http://172.17.4.10:5000/v2/hyperkube/tags/list
+
+
+------------------------------
+
+
+https://github.com/William-Yeh/docker-ansible
+
+
+ansible all -vvvv -m raw -a "echo hello"
+ansible workers -vvvv -m raw -a "echo hello"
+
+
+ ansible -vvvv workers -m raw -a 'docker pull localhost:5000/busybox'  
+
+
+
+
+cat << EOF | docker build -t node.local/ansible -
+FROM docker.io/williamyeh/ansible:alpine3
+
+RUN apk update && apk add openssh bash
+#RUN pip install 'docker-py>=1.7.0' 'docker-compose>=1.7.0' 
+WORKDIR /root
+
+ENTRYPOINT ["/bin/bash"]
+EOF
+
+
+
+cd $HOME && docker run -ti --rm \
+  -v $(pwd)/.ssh:/root/.ssh \
+  -v $(pwd)/ansible:/root/playbook \
+  -v /home/core/prep-files:/home/core/prep-files \
+  --name ansible --net host \
+  --workdir /root/playbook \
+  node.local/ansible 
+
+
+
+wget --timestamping --continue https://bootstrap.pypa.io/get-pip.py
+python -m site --user-site
+mkdir -p $(python -m site --user-site) 
+python get-pip.py --no-setuptools --no-wheel --user 
+
+python get-pip.py --no-wheel --user 
+pip install docker-py --user
+
+
+
+#PATH=/usr/bin:/bin:/usr/sbin:/sbin:/opt/bin

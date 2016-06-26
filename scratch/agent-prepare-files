@@ -1,0 +1,76 @@
+export CORE_HOME=/home/core
+export SHARED_FILES_DIR=$CORE_HOME/shared-files
+mkdir -p $SHARED_FILES_DIR $SHARED_FILES_DIR/kube-files
+
+cd $CORE_HOME
+
+
+#STOP LOCKSMIDTHD
+#--------------------------------------
+
+sudo systemctl disable locksmithd.service
+sudo systemctl stop locksmithd.service
+
+
+#DOWNLOAD FLANNEL
+#--------------------------------------
+
+DIR=/etc/systemd/system/flanneld.service.d
+sudo mkdir -p $DIR && cat << EOF | sudo tee "${DIR}/10-network-config.conf"
+[Service]
+ExecStartPre=/usr/bin/etcdctl --no-sync set /coreos.com/network/config '{}'
+EOF
+
+sudo systemctl start etcd2 
+sudo systemctl start flanneld
+sudo systemctl stop etcd2 flanneld
+
+
+
+#DOWNLOAD DOCKER IMAGES
+#--------------------------------------
+
+export KUBE_VERSION=1.2.4
+export HYPERKUBE_VERSION=v${KUBE_VERSION}
+export HYPERKUBE_IMAGE_REPO=gcr.io/google_containers/hyperkube
+
+docker pull $HYPERKUBE_IMAGE_REPO:$HYPERKUBE_VERSION
+docker pull gcr.io/google_containers/kubernetes-dashboard-amd64:v1.0.1
+docker pull gcr.io/google_containers/etcd-amd64:2.2.5
+docker pull gcr.io/google_containers/kube2sky-amd64:1.15
+docker pull gcr.io/google_containers/skydns-amd64:1.0
+docker pull gcr.io/google_containers/heapster:v1.1.0-beta2
+docker pull gcr.io/google_containers/heapster_influxdb:v0.6
+docker pull gcr.io/google_containers/heapster_grafana:v2.6.0-2
+
+
+
+#DOWNLOAD KUBLET AND KUBECTL
+#--------------------------------------
+
+
+# KUBELET
+cd $SHARED_FILES_DIR/kube-files && wget --timestamping https://storage.googleapis.com/kubernetes-release/release/v${KUBE_VERSION}/bin/linux/amd64/kubelet && chmod +x kubelet
+
+# KUBECTL
+cd $SHARED_FILES_DIR/kube-files && wget --timestamping https://storage.googleapis.com/kubernetes-release/release/v${KUBE_VERSION}/bin/linux/amd64/kubectl && chmod +x kubectl
+
+
+
+# MOVE FILES TO SHARED-FILES DIR
+#--------------------------------------
+
+
+
+# dump flannel image  dir
+cd $SHARED_FILES_DIR && sudo tar -zcvf early-docker.tar.gz /var/lib/early-docker && sudo chown core:core early-docker.tar.gz
+
+# dump docker image dir
+cd $SHARED_FILES_DIR && sudo tar -zcvf docker.tar.gz /var/lib/docker && sudo chown core:core docker.tar.gz
+
+
+
+
+
+
+

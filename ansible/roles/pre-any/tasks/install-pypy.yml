@@ -1,0 +1,43 @@
+---
+
+- name: Set python_is_installed fact
+  raw: type {{ opt_bin_dir }}/python
+  changed_when: false
+  failed_when: false
+  register: python_is_installed
+
+- block:
+  - name: Download pypy
+    raw: |
+      wget  --continue --directory-prefix {{ work_dir }} {{ pypy_download_url_base }}/{{ pypy_download_filename }}
+
+  - name: Extract pypy tar to /tmp
+    raw: >
+      tar -xjf {{ work_dir }}/{{ pypy_download_filename }} -C /tmp
+
+  - name: Move pypy source to python bootstrap directory
+    raw: mv -n /tmp/{{ pypy_download_dir }} {{ opt_bin_dir }}/pypy
+
+  - name: Make pypy lib directory and link ncurses .so
+    raw: mkdir -p {{ opt_bin_dir }}/pypy/lib && ln -snf /lib64/libncurses.so.5.9 {{ opt_bin_dir }}/pypy/lib/libtinfo.so.5
+
+  - name: Add python exec script to bootstrap directory
+    raw: >
+      printf "%s\n%s\n%s\n"
+      "#! /bin/bash"
+      "PATH=$PATH:{{ opt_bin_dir }}"
+      "LD_LIBRARY_PATH={{ opt_bin_dir }}/pypy/lib:\$LD_LIBRARY_PATH exec {{ opt_bin_dir }}/pypy/bin/pypy \"\$@\""
+      > {{ opt_bin_dir }}/python
+
+  - name: Add exec permission to python exec script
+    raw: chmod +x {{ opt_bin_dir }}/python
+    become: true
+    become_method: sudo
+
+  - name: Check python executable linkage and mark .bootstrapped
+    raw: "{{ opt_bin_dir }}/python --version"
+    
+  when: python_is_installed | failed
+
+
+

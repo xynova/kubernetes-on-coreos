@@ -1,0 +1,126 @@
+# -*- mode: ruby -*-
+# # vi: set ft=ruby :
+Vagrant.require_version ">= 1.6.0"
+
+$update_channel = "alpha"
+$master_count = 1
+$master_vm_memory = 1500
+$worker_count = 1
+$worker_vm_memory = 1500
+$etcd_count = 1
+$etcd_vm_memory = 1000
+$agent_vm_memory = 600
+
+agentIP = "172.17.4.10"
+
+def getEtcdIP(num)
+  return "172.17.4.#{num+50}"
+end
+
+def getMasterIP(num)
+  return "172.17.4.#{num+100}"
+end
+
+def getWorkerIP(num)
+  return "172.17.4.#{num+200}"
+end
+
+# GENERATE SSH KEY FOR AGENT
+system("
+    cd %DIR% 
+    mkdir -p .ssh && ls .ssh | grep id_rsa &> /dev/null || ssh-keygen -b 2048 -t rsa -f .ssh/id_rsa -q -N '' 
+    ".gsub("%DIR% ",File.dirname(__FILE__))
+ )
+
+
+
+Vagrant.configure("2") do |config|
+
+  setupBoxDefaults(config)
+
+  # CONFIGURE BOOTSTRAPPING CACHE REGISTRY
+  config.vm.define "agent" do |agent|
+    setupBoxConfig agent, "agent", agentIP, $agent_vm_memory
+
+    # ADD PRIVATE KEY SO AGENT CAN ACT AS THE ANSIBLE HOST TO BOOSTRAP CLUSTER 
+    agent.vm.provision :file, :source => ".ssh/id_rsa", :destination => "/home/core/.ssh/id_rsa"
+  end
+   
+  # CONFIGURE ETCD MACHINES
+  (1..$etcd_count).each do |i|
+    config.vm.define vm_name = "e%d" % i do |etcd|
+      setupBoxConfig etcd, vm_name, getEtcdIP(i), $etcd_vm_memory
+    end
+  end
+
+  # CONFIGURE MASTER MACHINES
+  (1..$master_count).each do |i|
+    config.vm.define vm_name = "m%d" % i do |master|
+      setupBoxConfig master, vm_name, getMasterIP(i), $master_vm_memory
+    end
+  end
+ 
+  # CONFIGURE WORKER MACHINES
+  (1..$worker_count).each do |i|
+    config.vm.define vm_name = "w%d" % i do |worker|
+      setupBoxConfig worker, vm_name, getWorkerIP(i), $worker_vm_memory
+    end
+  end
+
+end
+
+def setupBoxDefaults(config)
+  # SETUP MACHINE DEFAULTS
+  # always use Vagrant's insecure key
+  config.ssh.insert_key = false
+
+  config.vm.box = "coreos-%s" % $update_channel
+  config.vm.box_version = ">= 766.0.0"
+  config.vm.box_url = "http://%s.release.core-os.net/amd64-usr/current/coreos_production_vagrant.json" % $update_channel
+
+  config.vm.provider :virtualbox do |vb|
+    # On VirtualBox, we don't have guest additions or a functional vboxsf
+    # in CoreOS, so tell Vagrant that so it can be smarter.
+    vb.check_guest_additions = false
+    vb.functional_vboxsf     = false
+    vb.cpus = 1
+    vb.gui = false
+  end
+
+  # plugin conflict
+  if Vagrant.has_plugin?("vagrant-vbguest") then
+    config.vbguest.auto_update = false
+  end
+end
+
+
+def setupBoxConfig(confObj, hostname, ip, memory)
+    conf = confObj
+    conf.vm.hostname = hostname
+    conf.vm.provider :virtualbox do |v|
+        v.memory = memory
+    end
+    conf.vm.network :private_network, ip: ip
+
+    # INSERT CUSTOM SSH KEY
+    conf.vm.provision :file, :source => ".ssh/id_rsa.pub", :destination => "/home/core/.ssh/id_rsa.pub", :run => 'always'
+
+    conf.vm.provision "shell", :run => 'always', inline: <<-EOF
+    # Append the keys
+    HOME=/home/core \
+    && KEY=$(cat $HOME/.ssh/id_rsa.pub) \
+    && grep -q "$KEY" $HOME/.ssh/authorized_keys \
+    || cat $HOME/.ssh/id_rsa.pub >> $HOME/.ssh/authorized_keys
+    
+    # Remove SSHD ln and copy the editable file
+    sudo rm /etc/ssh/sshd_config && sudo cp /usr/share/ssh/sshd_config /etc/ssh/sshd_config
+    
+    # Set password authentication to NO        
+    sudo grep -q PasswordAuthentication /etc/ssh/sshd_config \
+    && sudo sed -i -e "\\#PasswordAuthentication yes# s#PasswordAuthentication yes#PasswordAuthentication no#g" /etc/ssh/sshd_config \
+    || echo -e "\nPasswordAuthentication no" | tee -a /etc/ssh/sshd_config &> /dev/null
+    EOF
+end
+
+
+

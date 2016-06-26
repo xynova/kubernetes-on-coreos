@@ -1,0 +1,292 @@
+
+#https://github.com/coreos/coreos-kubernetes/blob/master/multi-node/generic/controller-install.sh
+
+
+etcdctl set /coreos.com/network/config '{ "Network": "10.1.0.0/16" , "Backend":{"Type":"vxlan"} }'
+export ETCD_ENDPOINTS=http://172.17.4.51:2379,http://172.17.4.52:2379,http://172.17.4.53:2379
+export ADVERTISE_IP=$(awk -F= '/COREOS_PUBLIC_IPV4/ {print $2}' /etc/environment)
+
+export K8S_VERSION=v1.2.4_coreos.1
+export HYPERKUBE_IMAGE_REPO=quay.io/coreos/hyperkube
+
+# API Server
+export SERVICE_IP_RANGE=10.3.0.0/24
+export DNS_SERVICE_IP=10.3.0.10
+
+sudo mkdir -p /etc/kubernetes/ssl
+sudo mkdir -p /srv/kubernetes/manifests
+sudo mkdir -p /etc/kubernetes/manifests
+
+
+#FLANNEL
+#--------------------------------------
+
+#create flannel config
+sudo mkdir -p /etc/flannel
+sudo touch /etc/flannel/options.env
+cat << EOF| sudo tee  /etc/flannel/options.env
+FLANNELD_IFACE=$ADVERTISE_IP
+FLANNELD_ETCD_ENDPOINTS=$ETCD_ENDPOINTS
+EOF
+
+sudo mkdir -p /etc/systemd/system/flanneld.service.d
+cat << EOF | sudo tee /etc/systemd/system/flanneld.service.d/40-ExecStartPre-symlink.conf
+[Service]
+ExecStartPre=/usr/bin/ln -sf /etc/flannel/options.env /run/flannel/options.env
+EOF
+
+#start flanneld
+sudo systemctl enable flanneld
+sudo systemctl start flanneld
+
+
+
+
+
+
+
+#KUBELET MASTER
+#--------------------------------------
+
+
+
+#export NETWORK_PLUGIN=cni # if using calico
+
+
+cat << EOF | sudo tee /etc/systemd/system/kubelet.service
+[Unit]
+Description=Kubernetes Kubelet Master
+Documentation=http://kubernetes.io/docs/admin/kubelet
+After=flanneld.service
+Requires=flanneld.service
+
+[Service]
+Environment=KUBELET_VERSION=${K8S_VERSION}
+Environment=KUBELET_ACI=${HYPERKUBE_IMAGE_REPO}
+ExecStartPre=/usr/bin/mkdir -p /etc/kubernetes/manifests
+
+ExecStart=/usr/lib/coreos/kubelet-wrapper \
+  --address=0.0.0.0 \
+  --api-servers=http://127.0.0.1:8080 \
+  --network-plugin-dir=/etc/kubernetes/cni/net.d \
+  --network-plugin=${NETWORK_PLUGIN} \
+  --register-node=true \
+  --register-schedulable=false \
+  --allow-privileged=true \
+  --config=/etc/kubernetes/manifests \
+  --hostname-override=${ADVERTISE_IP} \
+  --cluster-dns=${DNS_SERVICE_IP} \
+  --cluster-domain=cluster.local
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+
+sudo rkt fetch --trust-keys-from-https $HYPERKUBE_IMAGE_REPO:$K8S_VERSION
+#--kubeconfig
+
+#API SERVER
+#--------------------------------------
+
+
+
+cat << EOF | sudo tee /etc/kubernetes/manifests/kube-apiserver.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-apiserver
+  namespace: kube-system
+spec:
+  hostNetwork: true
+  containers:
+  - name: kube-apiserver
+    image: ${HYPERKUBE_IMAGE_REPO}:${K8S_VERSION}
+    command:
+    - /hyperkube
+    - apiserver
+    - --insecure-bind-address=0.0.0.0
+    - --insecure-port=8080
+    - --bind-address=0.0.0.0
+    - --secure-port=0    
+    - --etcd-servers=${ETCD_ENDPOINTS}
+    - --allow-privileged=true
+    - --service-cluster-ip-range=${SERVICE_IP_RANGE}
+    - --advertise-address=${ADVERTISE_IP}
+    - --admission-control=NamespaceLifecycle,NamespaceExists,LimitRanger,ResourceQuota
+    - --authorization-mode=AlwaysAllow
+    - --apiserver-count=1    
+#    - --authorization-policy-file=""    
+#    - --tls-cert-file=/etc/kubernetes/ssl/apiserver.pem
+#    - --tls-private-key-file=/etc/kubernetes/ssl/apiserver-key.pem
+#    - --client-ca-file=/etc/kubernetes/ssl/ca.pem
+#    - --service-account-key-file=/etc/kubernetes/ssl/apiserver-key.pem
+    - --runtime-config=extensions/v1beta1=true,extensions/v1beta1/thirdpartyresources=true
+    ports:
+#    - containerPort: 443
+#      hostPort: 443
+#      name: https
+    - containerPort: 8080
+      hostPort: 8080
+      name: local
+    volumeMounts:
+    - mountPath: /etc/kubernetes/ssl
+      name: ssl-certs-kubernetes
+      readOnly: true
+    - mountPath: /etc/ssl/certs
+      name: ssl-certs-host
+      readOnly: true
+  volumes:
+  - hostPath:
+      path: /etc/kubernetes/ssl
+    name: ssl-certs-kubernetes
+  - hostPath:
+      path: /usr/share/ca-certificates
+    name: ssl-certs-host
+EOF
+
+
+
+
+#KUBE PROXY
+#--------------------------------------
+
+cat << EOF | sudo tee /etc/kubernetes/manifests/kube-proxy.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-proxy
+  namespace: kube-system
+spec:
+  hostNetwork: true
+  containers:
+  - name: kube-proxy
+    image: ${HYPERKUBE_IMAGE_REPO}:${K8S_VERSION}
+    command:
+    - /hyperkube
+    - proxy
+    - --master=http://127.0.0.1:8080
+    - --proxy-mode=iptables
+    securityContext:
+      privileged: true
+    volumeMounts:
+    - mountPath: /etc/ssl/certs
+      name: ssl-certs-host
+      readOnly: true
+  volumes:
+  - hostPath:
+      path: /usr/share/ca-certificates
+    name: ssl-certs-host
+EOF
+
+
+
+
+
+#CONTROLLER MANAGER
+#--------------------------------------
+
+
+cat << EOF | sudo tee /etc/kubernetes/manifests/kube-controller-manager.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-controller-manager
+  namespace: kube-system
+spec:
+  hostNetwork: true
+  containers:
+  - name: kube-controller-manager
+    image: ${HYPERKUBE_IMAGE_REPO}:${K8S_VERSION}
+    command:
+    - /hyperkube
+    - controller-manager
+    - --master=http://127.0.0.1:8080
+    - --leader-elect=true 
+#    - --service-account-private-key-file=/etc/kubernetes/ssl/apiserver-key.pem
+#    - --root-ca-file=/etc/kubernetes/ssl/ca.pem
+    livenessProbe:
+      httpGet:
+        host: 127.0.0.1
+        path: /healthz
+        port: 10252
+      initialDelaySeconds: 15
+      timeoutSeconds: 1
+    volumeMounts:
+    - mountPath: /etc/kubernetes/ssl
+      name: ssl-certs-kubernetes
+      readOnly: true
+    - mountPath: /etc/ssl/certs
+      name: ssl-certs-host
+      readOnly: true
+  volumes:
+  - hostPath:
+      path: /etc/kubernetes/ssl
+    name: ssl-certs-kubernetes
+  - hostPath:
+      path: /usr/share/ca-certificates
+    name: ssl-certs-host
+EOF
+
+
+
+#SCHEDULER
+#--------------------------------------
+
+
+cat << EOF | sudo tee /etc/kubernetes/manifests/kube-scheduler.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-scheduler
+  namespace: kube-system
+spec:
+  hostNetwork: true
+  containers:
+  - name: kube-scheduler
+    image: ${HYPERKUBE_IMAGE_REPO}:${K8S_VERSION}
+    command:
+    - /hyperkube
+    - scheduler
+    - --master=http://127.0.0.1:8080
+    - --leader-elect=true
+    livenessProbe:
+      httpGet:
+        host: 127.0.0.1
+        path: /healthz
+        port: 10251
+      initialDelaySeconds: 15
+      timeoutSeconds: 1
+EOF
+
+
+
+
+
+
+
+#WAIT FOR APISERVER
+#--------------------------------------
+
+echo "Waiting for Kubernetes API..."
+until curl --silent "http://127.0.0.1:8080/version"
+do
+    sleep 5
+done
+
+
+
+
+
+
+
+
+sudo ifconfig docker0 down
+sudo brctl delbr docker0
+
+https://github.com/coreos/flannel/blob/master/README.md
+
+
+curl -k -s -X GET https://gcr.io/v2/google_containers/kube-apiserver/tags/list | jq -r '.tags[]'

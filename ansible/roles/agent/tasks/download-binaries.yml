@@ -1,0 +1,12 @@
+---
+
+- name: Download Kubelet and Kubectl binaries
+  raw:  wget  --continue --directory-prefix {{ work_dir }} {{ kube_binaries_download_url_base }}/{{ item }}
+  with_items:
+    - "{{ kube_binaries_download_filenames }}"
+
+- name: Change mode to executable on downloaded files
+  file: path={{ work_dir }}/{{ item }} state=file mode=a+x
+  with_items:
+    - "{{ kube_binaries_download_filenames }}"
+  

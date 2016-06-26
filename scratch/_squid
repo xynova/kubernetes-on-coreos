@@ -1,0 +1,108 @@
+docker run -it --rm --entrypoint cat registry:2.4.1 /etc/docker/registry/config.yml > config.yml
+
+docker run -d --restart=always -p 5000:5000 --name mirror -v $(pwd)/config.yml:/var/lib/registry/config.yml registry:2.4.1
+
+
+
+
+
+
+
+
+
+
+docker pull sameersbn/squid:3.3.8-14
+
+
+docker run --name squid -d --restart=always \
+  --publish 3128:3128 \
+  --publish 3129:3129 \
+  --volume /srv/docker/squid/cache:/var/spool/squid3 \
+  --volume $(pwd)/squid.conf:/etc/squid3/squid.conf \
+  sameersbn/squid:3.3.8-14
+
+
+docker run -it --rm sameersbn/squid:3.3.8-14 -h
+
+
+  # optionally in another terminal run tail on logs
+docker exec -it squid tail -f /var/log/squid3/access.log
+
+# get squid ip to use in docker build
+SQUID_IP=$(docker inspect --format '{{ .NetworkSettings.IPAddress }}' squid)
+
+# build your instance
+docker build --build-arg http_proxy=http://$SQUID_IP:3128 .
+
+
+
+iptables -t nat -A OUTPUT --dst $YourIP -p tcp --dport $YourPort -j DNAT \--to-destination $TargetIP:$TargetPort
+
+sudo iptables -t nat -A OUTPUT -p tcp --dport 80 -o eth0 --jump DNAT --to-destination 172.17.4.101:3128
+sudo iptables -t nat -D OUTPUT -p tcp --dport 80 -o eth0 --jump DNAT --to-destination 172.17.4.101:3128
+
+
+iptables -t nat -A OUTPUT -p tcp -o eth0 -j DNAT --to-destination 172.17.4.101:3128
+
+
+
+sudo iptables -t nat -A OUTPUT -p tcp --dport 80 --jump DNAT --to-destination 172.17.4.101:3128
+
+
+
+sudo iptables -t nat -A POSTROUTING -p tcp --dport 80 --jump DNAT --to-destination 172.17.4.101:3128
+
+
+
+iptables -t nat -A OUTPUT -p tcp -m owner ! --uid-owner 500 --dport 80 -j REDIRECT --to-port 8080
+
+
+ip route get 67.199.75.47
+
+iptables -t nat -D OUTPUT -p tcp -m owner ! --uid-owner <replicator-user> --dport 80 -j REDIRECT --to-port 8080
+
+
+> iptables -t nat -A OUTPUT -p tcp -m owner ! --uid-owner <replicator-user> --dport 80 -j REDIRECT --to-port 8080
+
+
+
+
+iptables -A FORWARD -i eth0 -o eht1 -j ACCEPT
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+iptables -t nat -D POSTROUTING -o eth0 -j MASQUERADE
+
+
+
+mkdir -p /etc/systemd/system/docker.service.d
+cat << EOF > /etc/systemd/system/docker.service.d/10-proxy.conf
+[Service]
+Environment=HTTP_PROXY=http://172.17.4.101:3128
+Environment=HTTPS_PROXY=http://172.17.4.101:3128
+EOF
+systemctl daemon-reload
+
+mkdir -p /etc/systemd/system/docker.service.d
+cat << EOF > /etc/systemd/system/docker.service.d/10-proxy.conf
+[Service]
+Environment=HTTP_PROXY=http://localhost:3129
+Environment=HTTPS_PROXY=http://localhost:3129
+Environment=http_proxy=http://localhost:3129
+Environment=https_proxy=http://localhost:3129
+EOF
+systemctl daemon-reload
+
+
+
+sudo iptables -t nat -A OUTPUT -p tcp -o eth0 --jump DNAT --to-destination 172.17.4.101:5000
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+
+
+docker run --net host -d --privileged --name squid -v $(pwd)/squid1.conf:/etc/squid3/squid.conf jpetazzo/squid-in-a-can
+docker exec -it squid tail -f /var/log/squid3/access.log
+
+
+
+
+
+
+

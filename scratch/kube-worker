@@ -1,0 +1,137 @@
+
+export CORE_HOME=/home/core
+export SHARED_FILES_DIR=$CORE_HOME/shared-files
+cd $CORE_HOME
+
+export MACHINE_IP=$(awk -F= '/COREOS_PRIVATE_IPV4/ {print $2}' /etc/environment)
+export ETCD_ENDPOINTS=${ETCD_ENDPOINTS:=http://172.17.4.51:2379}
+export MASTER_ENDPOINTS=http://${MASTER_ENDPOINTS:=172.17.4.101}:8080
+
+export KUBE_VERSION=1.2.4
+export HYPERKUBE_VERSION=v${KUBE_VERSION}
+export HYPERKUBE_IMAGE_REPO=gcr.io/google_containers/hyperkube
+
+
+sudo mkdir -p /etc/kubernetes/ssl
+sudo mkdir -p /etc/kubernetes/manifests
+sudo mkdir -p /srv/kubernetes/manifests
+
+
+
+
+
+
+
+#DOWNLOAD KUBLET AND KUBECTL
+#--------------------------------------
+
+sudo mkdir -p /opt/bin
+
+# KUBELET
+cd /opt/bin && wget --timestamping https://storage.googleapis.com/kubernetes-release/release/v${KUBE_VERSION}/bin/linux/amd64/kubelet && sudo chmod +x kubelet
+
+# KUBECTL
+cd /opt/bin && wget --timestamping https://storage.googleapis.com/kubernetes-release/release/v${KUBE_VERSION}/bin/linux/amd64/kubectl && sudo chmod +x kubectl
+
+
+
+
+
+#KUBELET MASTER
+#--------------------------------------
+
+export DNS_SERVICE_IP=10.3.0.10
+
+cat << EOF | sudo tee /etc/systemd/system/kubelet.service
+[Unit]
+Description=Kubernetes Kubelet Master
+Documentation=http://kubernetes.io/docs/admin/kubelet
+After=flanneld.service
+Requires=flanneld.service
+
+[Service]
+ExecStartPre=/usr/bin/mkdir -p /etc/kubernetes/manifests
+
+ExecStart=/opt/bin/kubelet \
+  --address=0.0.0.0 \
+  --allow-privileged=true \
+  --api-servers=$MASTER_ENDPOINTS \
+  --cadvisor-port=4194 \
+  --cluster-dns=${DNS_SERVICE_IP} \
+  --cluster-domain=cluster.local \
+  --config=/etc/kubernetes/manifests \
+  --file-check-frequency=20s \
+  --healthz-bind-address=127.0.0.1 \
+  --healthz-port=10248 \
+  --hostname-override=${MACHINE_IP} \
+  --http-check-frequency=20s \
+  --image-gc-high-threshold=90 \
+  --image-gc-low-threshold=80 \
+  --low-diskspace-threshold-mb=256 \
+  --minimum-container-ttl-duration=1m0s \
+  --minimum-image-ttl-duration=2m0s \
+  --node-ip=${MACHINE_IP} \
+  --port=10250 \
+  --read-only-port=10255 \
+  --register-node=true \
+  --register-schedulable=true
+
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+sudo systemctl stop kubelet.service
+sudo systemctl daemon-reload
+sudo systemctl enable kubelet.service
+sudo systemctl start kubelet.service
+
+
+
+
+
+
+#KUBE PROXY
+#--------------------------------------
+
+cat << EOF | sudo tee /etc/kubernetes/manifests/kube-proxy.yml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-proxy
+  namespace: kube-system
+spec:
+  hostNetwork: true
+  containers:
+  - name: kube-proxy
+    image: ${HYPERKUBE_IMAGE_REPO}:${HYPERKUBE_VERSION}
+    command:
+    - /hyperkube
+    - proxy
+    - --bind-address=0.0.0.0
+    - --healthz-bind-address=127.0.0.1
+    - --healthz-port=10249
+    - --hostname-override=${MACHINE_IP}
+    - --master=${MASTER_ENDPOINTS}
+    - --proxy-mode=iptables
+    securityContext:
+      privileged: true
+    volumeMounts:
+    - mountPath: /etc/ssl/certs
+      name: ssl-certs-host
+      readOnly: true
+  volumes:
+  - hostPath:
+      path: /usr/share/ca-certificates
+    name: ssl-certs-host
+EOF
+
+
+
+
+
+
+
+

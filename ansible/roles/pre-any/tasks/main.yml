@@ -1,0 +1,28 @@
+---
+
+- name: Get machine_ip from /etc/environment file
+  raw: >
+    /usr/bin/awk -F= '/COREOS_PRIVATE_IPV4/ {print $2}' /etc/environment
+  register: command_result
+
+- name: Set machine_ip fact
+  set_fact: 
+    machine_ip: "{{ command_result.stdout_lines | first }}"
+
+- name: Disable Locksmithd service
+  raw: >
+    systemctl disable locksmithd && systemctl stop locksmithd
+  become: true
+  become_method: sudo
+  when: disableUpdates | default(false)
+
+- name: INCLUDE Prepare bin and work directories
+  include: prepare-directories.yml
+
+- name: INCLUDE Ensuring pypy
+  include: install-pypy.yml
+
+- name: INCLUDE Ensuring pip
+  include: install-pip.yml
+  when: installPip | default(false)
+

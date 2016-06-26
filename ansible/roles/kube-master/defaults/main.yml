@@ -1,0 +1,4 @@
+---
+
+
+docker_hyperkube: "{{ google_registry }}/{{ docker_kube_hyperkube_image.name }}:{{ docker_kube_hyperkube_image.tag }}"

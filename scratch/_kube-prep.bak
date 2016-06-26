@@ -1,0 +1,87 @@
+
+#STOP LOCKSMIDTHD
+#--------------------------------------
+
+sudo systemctl disable locksmithd.service
+sudo systemctl stop locksmithd.service
+
+
+#DOWNLOAD FLANNEL
+#--------------------------------------
+
+DIR=/etc/systemd/system/flanneld.service.d
+sudo mkdir -p $DIR && cat << EOF | sudo tee "${DIR}/10-network-config.conf"
+[Service]
+ExecStartPre=/usr/bin/etcdctl --no-sync set /coreos.com/network/config '{}'
+EOF
+
+sudo systemctl start etcd2 
+sudo systemctl start flanneld
+docker ps
+sudo systemctl stop etcd2 flanneld
+
+
+
+#DOWNLOAD DOCKER IMAGES
+#--------------------------------------
+
+export KUBE_VERSION=1.2.4
+export HYPERKUBE_VERSION=v${KUBE_VERSION}
+export HYPERKUBE_IMAGE_REPO=gcr.io/google_containers/hyperkube
+
+docker pull $HYPERKUBE_IMAGE_REPO:$HYPERKUBE_VERSION
+docker pull gcr.io/google_containers/kubernetes-dashboard-amd64:v1.0.1
+docker pull gcr.io/google_containers/etcd-amd64:e2.2.5
+docker pull gcr.io/google_containers/kube2sky-amd64:1.15
+docker pull gcr.io/google_containers/skydns-amd64:1.0
+docker pull gcr.io/google_containers/heapster:v1.1.0-beta2
+docker pull gcr.io/google_containers/heapster_influxdb:v0.6
+docker pull gcr.io/google_containers/heapster_grafana:v2.6.0-2
+docker pull quay.io/coreos/flannel:0.5.5
+
+
+
+
+
+
+#DOWNLOAD KUBLET AND KUBECTL
+#--------------------------------------
+
+# KUBELET
+curl -O https://storage.googleapis.com/kubernetes-release/release/v${KUBE_VERSION}/bin/linux/amd64/kubelet
+sudo chmod +x kubectl
+
+# KUBECTL
+curl -O https://storage.googleapis.com/kubernetes-release/release/v${KUBE_VERSION}/bin/linux/amd64/kubectl
+sudo chmod +x kubectl
+
+
+
+
+
+# MOVE FILES TO SHARED-FILES DIR
+#--------------------------------------
+
+sudo cp -R /var/lib/docker/image/ /tmp/shared-files/kube-image
+sudo chmod -R 0705 /tmp/shared-files/kube-image
+
+cp kubelet kubectl /tmp/shared-files
+
+
+sudo mkdir -p /var/lib/early-docker
+sudo ls /var/lib/early-docker/image
+
+
+
+
+#--------------------------------------
+
+
+#sudo mkdir -p /var/lib/docker
+#sudo cp -R /tmp/shared-files/image/ /var/lib/docker/ 
+#sudo chmod -R 0700 /var/lib/docker/image
+
+
+
+
+

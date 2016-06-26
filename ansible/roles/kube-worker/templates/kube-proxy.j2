@@ -1,0 +1,33 @@
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-proxy
+  namespace: kube-system
+spec:
+  hostNetwork: true
+  containers:
+  - name: kube-proxy
+    image: {{ docker_hyperkube }}
+    command:
+    - /hyperkube
+    - proxy
+    - --bind-address=0.0.0.0
+    - --healthz-bind-address=127.0.0.1
+    - --healthz-port=10249
+    - --hostname-override={{ machine_ip }}
+    - --master={{ master_endpoints }}
+    - --proxy-mode=iptables
+    securityContext:
+      privileged: true
+    volumeMounts:
+    - mountPath: /etc/ssl/certs
+      name: ssl-certs-host
+      readOnly: true
+  volumes:
+  - hostPath:
+      path: /usr/share/ca-certificates
+    name: ssl-certs-host
+
+
+

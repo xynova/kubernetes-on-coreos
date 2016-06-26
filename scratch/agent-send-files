@@ -1,0 +1,68 @@
+export CORE_HOME=/home/core
+export SHARED_FILES_DIR=$CORE_HOME/shared-files
+cd $CORE_HOME
+
+
+# COPY FILES ACROSS TO OTHER MACHINES
+#--------------------------------------
+
+
+
+SESSION=core@172.17.4.101
+SESSION=core@172.17.4.201
+
+
+ssh $SESSION "mkdir -p $SHARED_FILES_DIR/kube-files"
+ssh $SESSION "sudo mkdir -p /var/lib/docker /var/lib/early-docker"
+
+# copy flanneld
+scp -r $SHARED_FILES_DIR/early-docker.tar.gz $SESSION:$SHARED_FILES_DIR/
+ssh $SESSION "sudo tar -xzvf $SHARED_FILES_DIR/early-docker.tar.gz -C /"
+
+
+# copy docker
+scp -r $SHARED_FILES_DIR/docker.tar.gz $SESSION:$SHARED_FILES_DIR/
+ssh $SESSION "sudo tar -xzvf $SHARED_FILES_DIR/docker.tar.gz -C /"
+
+# copy kubelet and kubectl
+scp -r $SHARED_FILES_DIR/kube-files $SESSION:$SHARED_FILES_DIR
+ssh $SESSION "sudo mkdir -p /opt/bin && cd $SHARED_FILES_DIR && sudo mv $SHARED_FILES_DIR/kube-files/kubectl $SHARED_FILES_DIR/kube-files/kubelet /opt/bin"
+
+
+copy binaries to kube dir and then syslink them in (kubeet and kubectl)
+
+coreos:
+  units:
+    - name: rpc-mountd.service
+      command: start
+      enable: true
+    - name: nfsd.service
+      command: start
+      enable: truestrong text
+write_files:
+  - path: /etc/exports
+    permissions: '0644'
+    # Change /network-raid with the dir you want to export over nfs
+    content: /network-raid/ 192.168.1.0/24(rw,async,no_subtree_check,no_root_squash,fsid=0)
+
+
+write-files:
+  - path: /etc/conf.d/nfs
+    permissions: '0644'
+    content: |
+      OPTS_RPC_MOUNTD=""
+coreos:
+  units:
+    - name: rpc-statd.service
+      command: start
+      enable: true
+    - name: mnt-data.mount
+      command: start
+      content: |
+        [Mount]
+        What=nfshost.domain.com:/vol2/data
+        Where=/mnt/data
+        Type=nfs
+http://serverfault.com/questions/647014/share-disks-through-nfs-on-a-coreos-cluster
+
+http://blog.scottlowe.org/2015/02/20/config-mount-nfs-coreos/

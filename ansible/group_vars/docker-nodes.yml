@@ -1,0 +1,36 @@
+---
+
+docker_registry_image: { name: "registry" , tag: "2.4.1", registry: "docker.io/library" }
+docker_cache_registry: 
+  port: 5000
+  localHost: localhost
+  remoteHost: "{{ groups['agent'] | first }}"
+
+docker_flannel_images:
+  - { name: "flannel", tag: "0.5.5", registry: "quay.io/coreos" }
+
+
+google_registry: gcr.io/google_containers
+
+kube_version: 1.2.4
+docker_kube_hyperkube_image: { name: "hyperkube", tag: "v{{ kube_version }}", registry: "{{ google_registry }}" }
+
+docker_kube_ui_images:
+  - { name: "kubernetes-dashboard-amd64", tag: "v1.0.1" , registry: "{{ google_registry }}" }
+
+docker_kube_dns_images:
+  - { name: "etcd-amd64", tag: "2.2.5", registry: "{{ google_registry }}"}
+  - { name: "kube2sky-amd64", tag: "1.15", registry: "{{ google_registry }}" }
+  - { name: "skydns-amd64", tag: "1.0", registry: "{{ google_registry }}" }
+
+docker_kube_heapster_images:
+  - { name: "heapster", tag: "v1.1.0-beta2", registry: "{{ google_registry }}" }
+  - { name: "heapster_influxdb", tag: "v0.6", registry: "{{ google_registry }}" }
+  - { name: "heapster_grafana", tag: "v2.6.0-2", registry: "{{ google_registry }}" }
+
+
+kube_binaries_download_url_base: https://storage.googleapis.com/kubernetes-release/release/v{{ kube_version }}/bin/linux/amd64
+kube_binaries_download_filenames:
+  - kubelet
+  - kubectl
+

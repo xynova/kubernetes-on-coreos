@@ -1,0 +1,62 @@
+
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-apiserver
+  namespace: kube-system
+spec:
+  hostNetwork: true
+  containers:
+  - name: kube-apiserver
+    image: {{ docker_hyperkube }}
+    command:
+    - /hyperkube
+    - apiserver
+    - --admission-control=AlwaysAdmit
+    - --advertise-address={{ machine_ip }}
+    - --allow-privileged=true
+    - --apiserver-count=1
+    - --authorization-mode=AlwaysAllow
+    - --bind-address=0.0.0.0    
+#    - --client-ca-file=/etc/kubernetes/ssl/ca.pem
+#    - --etcd-cafile=""
+#    - --etcd-certfile=""
+#    - --etcd-keyfile=""
+#    - --etcd-prefix=/registry
+    - --etcd-quorum-read=false
+    - --etcd-servers={{ etcd_endpoints }}
+#    - --insecure-bind-address=127.0.0.1
+    - --insecure-bind-address=0.0.0.0
+    - --insecure-port=8080
+    - --kubernetes-service-node-port=0
+    - --secure-port=6443   
+#    - --service-account-key-file=/etc/kubernetes/ssl/apiserver-key.pem
+    - --service-account-lookup=false
+    - --service-cluster-ip-range={{ kube_services_network_block }}
+#    - --tls-cert-file=/etc/kubernetes/ssl/apiserver.pem
+#    - --tls-private-key-file=/etc/kubernetes/ssl/apiserver-key.pem    
+    - --runtime-config=extensions/v1beta1=true,extensions/v1beta1/thirdpartyresources=true
+    ports:
+#    - containerPort: 443
+#      hostPort: 443
+#      name: https
+    - containerPort: 8080
+      hostPort: 8080
+      name: local
+    volumeMounts:
+    - mountPath: /etc/kubernetes/ssl
+      name: ssl-certs-kubernetes
+      readOnly: true
+    - mountPath: /etc/ssl/certs
+      name: ssl-certs-host
+      readOnly: true
+  volumes:
+  - hostPath:
+      path: /etc/kubernetes/ssl
+    name: ssl-certs-kubernetes
+  - hostPath:
+      path: /usr/share/ca-certificates
+    name: ssl-certs-host
+
+
+

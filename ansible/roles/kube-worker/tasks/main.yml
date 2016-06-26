@@ -1,0 +1,22 @@
+---
+
+- block:
+
+  - set_fact:
+      docker_hyperkube: "{{ google_registry }}/{{ docker_kube_hyperkube_image.name }}:{{ docker_kube_hyperkube_image.tag }}"
+
+  - name: Copy manifests
+    template: src={{ item.src }} dest={{ item.dest }}
+    with_items:
+      - { src: kubelet.service.j2, dest: /etc/systemd/system/kubelet.service }
+      - { src: kube-proxy.j2, dest: /etc/kubernetes/manifests/kube-proxy.yml }
+
+  - name: Start kubelet
+    shell: |
+      systemctl stop kubelet.service
+      systemctl daemon-reload
+      systemctl enable kubelet.service
+      systemctl start kubelet.service
+  
+  become: true
+  become_method: sudo

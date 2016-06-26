@@ -1,0 +1,13 @@
+---
+
+- name: Set docker_py_is_installed fact
+  shell: |
+    {{ opt_bin_dir }}/pip show docker-py
+  changed_when: false
+  failed_when: false
+  register: docker_py_is_installed
+
+- name: install docker-py
+  shell: |
+    {{ opt_bin_dir }}/pip install docker-py --user
+  when: docker_py_is_installed | failed

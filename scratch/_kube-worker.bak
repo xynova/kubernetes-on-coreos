@@ -1,0 +1,270 @@
+
+#https://github.com/coreos/coreos-kubernetes/blob/master/multi-node/generic/worker-install.sh
+
+
+etcdctl set /coreos.com/network/config '{ "Network": "10.1.0.0/16" , "Backend":{"Type":"vxlan"} }'
+export ETCD_ENDPOINTS=http://172.17.4.51:2379,http://172.17.4.52:2379,http://172.17.4.53:2379
+export ADVERTISE_IP=$(awk -F= '/COREOS_PUBLIC_IPV4/ {print $2}' /etc/environment)
+export MASTER_IP=172.17.4.51:8080
+
+export K8S_VERSION=v1.2.4_coreos.1
+export HYPERKUBE_IMAGE_REPO=quay.io/coreos/hyperkube
+
+# API Server
+export SERVICE_IP_RANGE=10.3.0.0/24
+
+sudo mkdir -p /etc/kubernetes/ssl
+sudo mkdir -p /srv/kubernetes/manifests
+sudo mkdir -p /etc/kubernetes/manifests
+
+
+#FLANNEL
+#--------------------------------------
+
+#create flannel config
+sudo mkdir -p /etc/flannel
+sudo touch /etc/flannel/options.env
+cat << EOF| sudo tee  /etc/flannel/options.env
+FLANNELD_IFACE=$ADVERTISE_IP
+FLANNELD_ETCD_ENDPOINTS=$ETCD_ENDPOINTS
+EOF
+
+sudo mkdir -p /etc/systemd/system/flanneld.service.d
+cat << EOF | sudo tee /etc/systemd/system/flanneld.service.d/40-ExecStartPre-symlink.conf
+[Service]
+ExecStartPre=/usr/bin/ln -sf /etc/flannel/options.env /run/flannel/options.env
+EOF
+
+#start flanneld
+sudo systemctl enable flanneld
+sudo systemctl start flanneld
+
+
+
+
+
+
+#KUBELET WORKER
+#--------------------------------------
+
+
+export DNS_SERVICE_IP=10.3.0.10
+#export NETWORK_PLUGIN=cni # if using calico
+
+
+cat << EOF | sudo tee /etc/systemd/system/kubelet.service
+[Unit]
+Description=Kubernetes Kubelet Worker
+Documentation=http://kubernetes.io/docs/admin/kubelet
+After=flanneld.service
+Requires=flanneld.service
+
+[Service]
+Environment=KUBELET_VERSION=${K8S_VERSION}
+Environment=KUBELET_ACI=${HYPERKUBE_IMAGE_REPO}
+ExecStartPre=/usr/bin/mkdir -p /etc/kubernetes/manifests
+
+ExecStart=/usr/lib/coreos/kubelet-wrapper \
+  --address=0.0.0.0 \
+  --api-servers=${MASTER_IP} \
+  --network-plugin-dir=/etc/kubernetes/cni/net.d \
+  --network-plugin=${NETWORK_PLUGIN} \
+  --register-node=true \
+  --register-schedulable=true \
+  --allow-privileged=true \
+  --config=/etc/kubernetes/manifests \
+  --hostname-override=${ADVERTISE_IP} \
+  --cluster_dns=${DNS_SERVICE_IP} \
+  --cluster_domain=cluster.local \
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+
+sudo rkt fetch --trust-keys-from-https $HYPERKUBE_IMAGE_REPO:$K8S_VERSION
+
+#--kubeconfig=/etc/kubernetes/worker-kubeconfig.yaml \ #Specifying how to authenticate to API server (the master location is set by the api-servers flag).
+#--tls-cert-file=/etc/kubernetes/ssl/worker.pem \
+#--tls-private-key-file=/etc/kubernetes/ssl/worker-key.pem 
+
+
+
+
+
+
+
+
+#KUBE PROXY
+#--------------------------------------
+
+
+
+cat << EOF | sudo tee /etc/kubernetes/manifests/kube-proxy.yaml
+apiVersion: v1
+kind: Pod
+metadata:
+  name: kube-proxy
+  namespace: kube-system
+spec:
+  hostNetwork: true
+  containers:
+  - name: kube-proxy
+    image: ${HYPERKUBE_IMAGE_REPO}:${K8S_VERSION}
+    command:
+    - /hyperkube
+    - proxy
+    - --master=${MASTER_IP}
+    - --proxy-mode=iptables
+    securityContext:
+      privileged: true
+    volumeMounts:
+      - mountPath: /etc/ssl/certs
+        name: "ssl-certs"
+  volumes:
+    - name: "ssl-certs"
+      hostPath:
+        path: "/usr/share/ca-certificates"
+EOF
+
+
+#    - --kubeconfig=/etc/kubernetes/worker-kubeconfig.yaml
+
+
+
+
+
+
+
+
+
+
+
+
+
+# HEAPSTER
+#--------------------------------------
+
+# https://github.com/kubernetes/heapster/blob/cd2301d0bca468dff796a9d26bc093efdcc1be2d/docs/source-configuration.md
+
+
+
+cat << EOF | sudo tee /srv/kubernetes/manifests/heapster-dc.yaml
+apiVersion: "extensions/v1beta1"
+kind: "Deployment"
+metadata: 
+  name: "heapster-v1.0.2"
+  namespace: "kube-system"
+  labels: 
+    k8s-app: "heapster"
+    kubernetes.io/cluster-service: "true"
+    version: "v1.0.2"
+spec: 
+  replicas: 1
+  selector: 
+    matchLabels: 
+      k8s-app: "heapster"
+      version: "v1.0.2"
+  template: 
+    metadata: 
+      labels: 
+        k8s-app: "heapster"
+        version: "v1.0.2"
+    spec: 
+      containers:
+        - name: "heapster"
+          image: "gcr.io/google_containers/heapster:v1.0.2"
+          command: 
+            - "/heapster"
+            - "--source=kubernetes.summary_api:''"
+            - "--metric_resolution=60s"          
+          resources: 
+            limits: 
+              cpu: "100m"
+              memory: "250Mi"
+            requests: 
+              cpu: "100m"
+              memory: "250Mi"
+        - name: "heapster-nanny"
+          image: "gcr.io/google_containers/addon-resizer:1.0"
+          command: 
+            - "/pod_nanny"
+            - "--cpu=100m"
+            - "--extra-cpu=0m"
+            - "--memory=250Mi"
+            - "--extra-memory=4Mi"
+            - "--threshold=5"
+            - "--deployment=heapster-v1.0.2"
+            - "--container=heapster"
+            - "--poll-period=300000"
+          env: 
+            - name: "MY_POD_NAME"
+              valueFrom: 
+                fieldRef: 
+                  fieldPath: "metadata.name"
+            - name: "MY_POD_NAMESPACE"
+              valueFrom: 
+                fieldRef: 
+                  fieldPath: "metadata.namespace"
+          resources: 
+            limits: 
+              cpu: "50m"
+              memory: "100Mi"
+            requests: 
+              cpu: "50m"
+              memory: "100Mi"
+EOF
+
+
+
+
+
+cat << EOF | sudo tee /srv/kubernetes/manifests/heapster-svc.yaml
+kind: "Service"
+apiVersion: "v1"
+metadata:
+  name: "heapster"
+  namespace: "kube-system"
+  labels:
+    kubernetes.io/cluster-service: "true"
+    kubernetes.io/name: "heapster"
+spec:
+  ports:
+    - port: 80
+      targetPort: 8082
+  selector: 
+    k8s-app: "heapster"
+EOF
+
+
+
+sudo rkt run \
+--volume etc-kubernetes,kind=host,source=/etc/kubernetes \
+--mount volume=etc-kubernetes,target=/etc/kubernetes \
+sha512-7e606bfcf39d --exec=/kubelet -- \
+--api-servers=${MASTER_IP} \
+--register-node=false \
+--enable-server=false \
+--runonce=true \
+--config=/srv/kubernetes/manifests 
+
+
+KUBELET_VERSION=$K8S_VERSION \
+&& KUBELET_ACI=$HYPERKUBE_IMAGE_REPO \
+&& /usr/lib/coreos/kubelet-wrapper \
+--exec=/kubelet -- \
+--api-servers=${MASTER_IP} \
+--register-node=false \
+--enable-server=false \
+--runonce=true \
+--config=/srv/kubernetes/manifests 
+
+${HYPERKUBE_IMAGE_REPO}:${K8S_VERSION}
+
+
+
+
+
+

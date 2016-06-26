@@ -1,0 +1,7 @@
+[Service]
+Environment="ETCD_ADVERTISE_CLIENT_URLS={{ master_endpoint_scheme }}://{{ machine_ip }}:2379"
+Environment="ETCD_INITIAL_ADVERTISE_PEER_URLS={{ master_endpoint_scheme }}://{{ machine_ip }}:2380"
+Environment="ETCD_INITIAL_CLUSTER={% for h in groups['etcd'] %}{{ h | hash('sha1') }}={{ etcd_endpoint_scheme }}://{{ h }}:2380{% if not loop.last %},{% endif %}{% endfor %}" 
+Environment="ETCD_LISTEN_CLIENT_URLS={{ master_endpoint_scheme }}://0.0.0.0:2379"
+Environment="ETCD_LISTEN_PEER_URLS={{ master_endpoint_scheme }}://{{ machine_ip }}:2380"
+Environment="ETCD_NAME={{ inventory_hostname | hash('sha1') }}"

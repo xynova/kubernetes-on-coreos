@@ -1,0 +1,15 @@
+---
+
+#pypy_version: 2.4.0
+pypy_version: v5.3.1
+#pypy_version: 5.1.1
+
+pypy_download_url_base: https://bitbucket.org/pypy/pypy/downloads
+  
+#pypy_download_dir: pypy-{{ pypy_version }}-linux64
+pypy_download_dir: pypy2-{{ pypy_version }}-linux64
+
+pypy_download_filename: "{{ pypy_download_dir }}.tar.bz2"
+
+pip_download_url_base: https://bootstrap.pypa.io
+pip_download_filename: get-pip.py

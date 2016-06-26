@@ -1,0 +1,21 @@
+---
+
+- block:
+  - name: Ensure systemd etcd unit config folder
+    raw: >
+      mkdir -p /etc/systemd/system/etcd2.service.d
+
+  - name: Extend etcd with Environment file
+    template: src=20-environment.j2 dest=/etc/systemd/system/etcd2.service.d/20-environment.conf 
+  
+  - name: Enable etcd
+    shell: |
+      systemctl stop etcd2.service
+      systemctl daemon-reload
+      systemctl enable etcd2.service
+      systemctl start etcd2.service
+
+  become: true
+  become_method: sudo
+
+

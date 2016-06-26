@@ -1,0 +1,19 @@
+---
+
+- hosts: all
+  gather_facts: false
+  tasks:
+    - name: Disable Locksmithd service
+      raw: systemctl disable locksmithd && systemctl stop locksmithd
+  become: true
+  become_method: sudo
+  tags: init
+
+- hosts: agent
+  gather_facts: false
+  roles: 
+    - pre-any
+    - agent
+  tags: agent
+
+

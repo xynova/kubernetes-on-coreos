@@ -1,0 +1,21 @@
+---
+
+- name: Set pip_is_installed fact
+  shell: type {{ opt_bin_dir }}/pip
+  changed_when: false
+  failed_when: false
+  register: pip_is_installed
+
+- block:
+  #- name: Download {{ pip_download_filename }}
+  #  get_url: dest={{ work_dir }} url={{ pip_download_url_base }}/{{ pip_download_filename }}
+
+  #- name: Install pip
+  #shell: python {{ pip_download_filename }} --no-wheel --user 
+  #args:
+  #chdir: "{{ work_dir }}"
+
+  - name: Install pip
+    shell: python -m ensurepip --user
+
+  when: pip_is_installed | failed

@@ -1,0 +1,47 @@
+---
+
+- name: Create network key in Etcd
+  shell: >
+    /usr/bin/etcdctl --endpoints={{ etcd_endpoints }} 
+    set /coreos.com/network/config '{ "Network": "{{ flanel_network_block }}" , "Backend":{"Type":"{{ flannel_network_backend_type }}"} }'
+  delegate_to: "{{ groups['etcd'] | first }}"
+
+- block:
+  - name: Create directories
+    shell: |
+      mkdir -p {{ item }}
+    with_items:
+      - /etc/flannel
+      - /etc/systemd/system/flanneld.service.d
+      - /etc/systemd/system/docker.service.d
+
+  - name: Create flannel options file
+    template: src=flannel-options-file.j2 dest=/etc/flannel/options.env
+
+  - name: Extend flanneld unit file with link to options file
+    template: src=flannel-options-unit.j2 dest=/etc/systemd/system/flanneld.service.d/40-link-options.conf
+
+  - name: Extend docker.service to wait for flanneld.service to be ready
+    template: src=waitForFlanneld-unit.j2 dest=/etc/systemd/system/docker.service.d/30-waitForFlanneld.conf
+
+  - name: Cleanup previous docker network state
+    shell: |
+      systemctl stop docker
+      ifconfig docker0 down 2> /dev/null
+      brctl delbr docker0 2> /dev/null
+      rm -r /var/lib/docker/network
+      systemctl daemon-reload
+    ignore_errors: true
+
+  - name: Reload systemd daemon, enable and restart flanned and docker services
+    service: name={{ item }} enabled=true state=restarted
+    ignore_errors: true
+    with_items:
+      - flanneld
+      - docker
+
+  become: true
+  become_method: sudo
+
+
+

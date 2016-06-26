@@ -1,0 +1,40 @@
+---
+
+- name: INCLUDE Pull cached docker images for kube-node
+  include: pull-cached-images.yml
+
+
+- name: Move pre-copied kube-binaries from {{ work_dir }} into {{ opt_bin_dir }}
+  shell: >
+    ls {{ item }} > /dev/null && mv {{ item }} {{ opt_bin_dir }} 
+  args:
+    chdir: "{{ work_dir }}"
+  with_items: 
+    - "{{ kube_binaries_download_filenames }}"
+  register: command_result
+  failed_when: false
+  changed_when: command_result | succeeded
+
+
+- name: Ensure kube-node configuration directories
+  raw: >
+    mkdir -p {{ item }}
+  with_items:
+    - "{{ etc_kubernetes_ssl_dir }}"
+    - "{{ etc_kubernetes_manifests }}" 
+    - "{{ srv_kubernetes_manifests }}"
+  changed_when: false
+  become: true
+  become_method: sudo
+
+- name: Ensure .kube config directory
+  raw: >
+    mkdir -p {{ item }}
+  with_items:
+    - "{{ home_kubeconfig_dir }}"
+  changed_when: false
+
+- name: Create default inner cluster kubeconfig
+  template: src=kubeconfig.j2 dest={{ home_kubeconfig_dir }}/config
+
+

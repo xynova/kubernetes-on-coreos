@@ -1,0 +1,20 @@
+---
+
+- name: Ensure {{ opt_bin_dir }} directory exists
+  raw: >
+    mkdir -p {{ opt_bin_dir }}
+    && chown -R root:core {{ opt_dir }}
+    && chmod -R  0771 {{ opt_dir }}
+  become: true
+  become_method: sudo
+
+- name: Ensure {{ work_dir }} directory exists
+  raw: >
+    mkdir -p {{ work_dir }}
+    && chown -R core:core {{ work_dir }}
+    && chmod -R  0771 {{ work_dir }}
+
+- name: Create link from {{ opt_dir }} to {{ home_dir }}/.local for pip and other custom modules to be installed
+  raw: >
+    ln -sf --no-target-directory {{ opt_dir }} {{ home_dir }}/.local
+

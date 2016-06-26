@@ -1,0 +1,26 @@
+---
+
+etcd_endpoint_scheme: http
+etcd_endpoints: "{% for hostname in groups['etcd'] %}{{ etcd_endpoint_scheme }}://{{ hostname }}:2379{% if not loop.last %},{% endif %}{% endfor %}"
+
+master_endpoint_scheme: http
+master_endpoints: "{% for hostname in groups['kube-masters'] %}{{ master_endpoint_scheme }}://{{ hostname }}:8080{% if not loop.last %},{% endif %}{% endfor %}"
+
+flanel_network_block: 10.1.0.0/16
+flannel_network_backend_type: vxlan
+
+kube_services_network_block: 10.3.0.0/24
+kube_dns_service_ip: 10.3.0.10
+
+home_dir: /home/core
+work_dir: "{{ home_dir }}/prep-files"
+
+opt_dir: /opt
+opt_bin_dir: "{{ opt_dir }}/bin"
+
+
+
+
+
+
+

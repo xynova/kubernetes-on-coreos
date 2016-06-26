@@ -1,0 +1,48 @@
+
+export MACHINE_IP=$(awk -F= '/COREOS_PRIVATE_IPV4/ {print $2}' /etc/environment)
+
+#FLANNEL
+etcdctl set /coreos.com/network/config '{ "Network": "10.1.0.0/16" , "Backend":{"Type":"vxlan"} }'
+
+#KUBELET
+export K8S_VERSION=v1.2.4_coreos.1
+export HYPERKUBE_IMAGE_REPO=quay.io/coreos/hyperkube
+
+
+
+# API Server
+export SERVICE_IP_RANGE=10.3.0.0/24
+export DNS_SERVICE_IP=10.3.0.10
+
+sudo mkdir -p /etc/kubernetes/ssl
+sudo mkdir -p /srv/kubernetes/manifests
+sudo mkdir -p /etc/kubernetes/manifests
+
+export ETCD_ENDPOINTS=http://172.17.4.51:2379
+
+
+
+
+#FLANNEL
+#--------------------------------------
+
+#create flannel config
+sudo mkdir -p /etc/flannel
+sudo touch /etc/flannel/options.env
+cat << EOF | sudo tee  /etc/flannel/options.env
+FLANNELD_IFACE=$MACHINE_IP
+FLANNELD_ETCD_ENDPOINTS=$ETCD_ENDPOINTS
+EOF
+
+sudo mkdir -p /etc/systemd/system/flanneld.service.d
+cat << EOF | sudo tee /etc/systemd/system/flanneld.service.d/40-ExecStartPre-symlink.conf
+[Service]
+ExecStartPre=/usr/bin/ln -sf /etc/flannel/options.env /run/flannel/options.env
+EOF
+
+#start flanneld
+sudo systemctl enable flanneld
+sudo systemctl start flanneld
+
+
+
