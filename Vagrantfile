@@ -28,8 +28,8 @@ end
 # GENERATE SSH KEY FOR AGENT
 system("
     cd %DIR% 
-    mkdir -p .ssh && ls .ssh | grep id_rsa &> /dev/null || ssh-keygen -b 2048 -t rsa -f .ssh/id_rsa -q -N '' 
-    ".gsub("%DIR% ",File.dirname(__FILE__))
+    ./init-ansible-keys.sh
+    ".gsub("%DIR%",File.dirname(__FILE__))
  )
 
 
@@ -44,6 +44,10 @@ Vagrant.configure("2") do |config|
 
     # ADD PRIVATE KEY SO AGENT CAN ACT AS THE ANSIBLE HOST TO BOOSTRAP CLUSTER 
     agent.vm.provision :file, :source => ".ssh/id_rsa", :destination => "/home/core/.ssh/id_rsa"
+    agent.vm.provision "shell", :run => 'always', inline: <<-EOF
+        cd /tmp && rm -R kubernetes-on-coreos
+        git clone --depth 1 https://github.com/xynova/kubernetes-on-coreos.git 
+    EOF
   end
    
   # CONFIGURE ETCD MACHINES
