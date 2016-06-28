@@ -45,8 +45,9 @@ Vagrant.configure("2") do |config|
     # ADD PRIVATE KEY SO AGENT CAN ACT AS THE ANSIBLE HOST TO BOOSTRAP CLUSTER 
     agent.vm.provision :file, :source => ".ssh/id_rsa", :destination => "/home/core/.ssh/id_rsa"
     agent.vm.provision "shell", :run => 'always', inline: <<-EOF
-        cd /tmp && rm -R kubernetes-on-coreos
-        git clone --depth 1 https://github.com/xynova/kubernetes-on-coreos.git 
+        cd /tmp && rm -Rf kubernetes-on-coreos
+        git clone --depth 1 https://github.com/xynova/kubernetes-on-coreos.git && chown 500:500 kubernetes-on-coreos
+        ln -sf --no-target-directory /tmp/kubernetes-on-coreos/ansible/ /home/core/ansible
     EOF
   end
    

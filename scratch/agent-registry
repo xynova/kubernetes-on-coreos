@@ -45,15 +45,36 @@ ansible workers -vvvv -m raw -a "echo hello"
 
 
 
+
+
 cat << EOF | docker build -t node.local/ansible -
 FROM docker.io/williamyeh/ansible:alpine3
 
 RUN apk update && apk add openssh bash
-#RUN pip install 'docker-py>=1.7.0' 'docker-compose>=1.7.0' 
 WORKDIR /root
 
 ENTRYPOINT ["/bin/bash"]
 EOF
+
+
+
+cd $HOME && docker run -ti --rm \
+  -v /home/core/.ssh:/root/.ssh:ro \
+  -v /root/.ansible \
+  -v /home/core/ansible:/root/ansible:ro \
+  --name ansible \
+  --net host \
+  --workdir /root/ansible \
+  node.local/ansible 
+
+ansible all -i 172.17.4.10, -m raw -a 'echo $(pwd)'
+
+
+
+
+
+
+
 
 
 
