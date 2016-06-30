@@ -43,17 +43,58 @@ ansible workers -vvvv -m raw -a "echo hello"
  ansible -vvvv workers -m raw -a 'docker pull localhost:5000/busybox'  
 
 
+-----------------------------------------------------------------------------
 
+
+sudo rkt run \
+  --insecure-options=image \
+  --volume ssh-keys,kind=host,source=$HOME/.ssh,readOnly=true \
+  --volume ansible-cp,kind=empty,readOnly=false \
+  --volume workdir,kind=host,source=$(pwd),readOnly=true \
+  --mount volume=ssh-keys,target=/root/.ssh \
+  --mount volume=ansible-cp,target=/root/.ansible \
+  --mount volume=workdir,target=/root/workdir \
+  --net=host \
+  --interactive=true \
+  docker://williamyeh/ansible:alpine3 --exec 'sh' -- "$@" #"ls /root/workdir" #-- '/bin/ls'
+
+
+
+
+
+rkt --insecure-options=image fetch docker://williamyeh/ansible:alpine3
+sudo rkt --insecure-options=image run docker://williamyeh/ansible:alpine3
 
 cat << EOF | docker build -t node.local/ansible -
 FROM docker.io/williamyeh/ansible:alpine3
 
 RUN apk update && apk add openssh bash
-#RUN pip install 'docker-py>=1.7.0' 'docker-compose>=1.7.0' 
 WORKDIR /root
 
 ENTRYPOINT ["/bin/bash"]
 EOF
+
+
+
+cd $HOME && docker run -ti --rm \
+  -v /home/core/.ssh:/root/.ssh:ro \
+  -v /root/.ansible \
+  -v /home/core/ansible:/root/ansible:ro \
+  --name ansible \
+  --net host \
+  --workdir /root/ansible \
+  node.local/ansible 
+
+
+
+ansible all -i 172.17.4.10, -m raw -a 'echo $(pwd)'
+
+
+
+
+
+
+
 
 
 
@@ -64,6 +105,14 @@ cd $HOME && docker run -ti --rm \
   --name ansible --net host \
   --workdir /root/playbook \
   node.local/ansible 
+
+
+
+
+
+-----------------------------------------------------------------------------
+
+
 
 
 
