@@ -46,8 +46,10 @@ Vagrant.configure("2") do |config|
     agent.vm.provision :file, :source => ".ssh/id_rsa", :destination => "/home/core/.ssh/id_rsa"
     agent.vm.provision "shell", :run => 'always', inline: <<-EOF
         cd /tmp && rm -Rf kubernetes-on-coreos
-        git clone --depth 1 https://github.com/xynova/kubernetes-on-coreos.git && chown 500:500 kubernetes-on-coreos
+        git clone --depth 1 https://github.com/xynova/kubernetes-on-coreos.git && chown 500:500 -R kubernetes-on-coreos
         ln -sf --no-target-directory /tmp/kubernetes-on-coreos/ansible/ /home/core/ansible
+        mkdir -p /opt/bin && ln -sf --no-target-directory /tmp/kubernetes-on-coreos/scripts/run-playbook.sh /opt/bin/run-playbook
+        chown root:core -R /opt/bin
     EOF
   end
    
