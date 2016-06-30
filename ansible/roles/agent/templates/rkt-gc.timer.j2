@@ -1,0 +1,11 @@
+[Unit]
+Description=Periodic Garbage Collection for rkt
+
+[Timer]
+# Timer relative to the moment the timer itself is activated
+OnActiveSec=0s
+# Time between running each consecutive time
+OnUnitActiveSec=30m0s
+
+[Install]
+WantedBy=default.target

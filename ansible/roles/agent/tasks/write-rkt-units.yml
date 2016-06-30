@@ -1,0 +1,16 @@
+---
+
+- block:
+  - name: Create rtk garbage collect service
+    template: src={{ item }}.j2 dest=/etc/systemd/system/{{ item }}  
+    with_items:
+      - rkt-gc.service
+      - rkt-gc.timer
+
+  - name: Enable and start units
+    service: name={{ item }} state=started enabled=true 
+    with_items:
+      - rkt-gc.service
+      - rkt-gc.timer
+  become: true
+  become_method: sudo

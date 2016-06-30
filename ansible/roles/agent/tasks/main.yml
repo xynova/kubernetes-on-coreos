@@ -6,4 +6,7 @@
 - name: INCLUDE download Kubernetes binaries
   include: download-binaries.yml
 
+- name: Start rkt system units
+  include: write-rkt-units.yml
+
 
