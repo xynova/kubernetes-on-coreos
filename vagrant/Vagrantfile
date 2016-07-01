@@ -115,6 +115,8 @@ def setupBoxConfig(confObj, hostname, ip, memory)
     conf.vm.provision "shell", :run => 'always', inline: <<-EOF
     # Append the keys
     HOME=/home/core \
+    && chmod 0700 -R $HOME/.ssh \
+    && chown core:core -R $HOME/.ssh \
     && KEY=$(cat $HOME/.ssh/id_rsa.pub) \
     && grep -q "$KEY" $HOME/.ssh/authorized_keys \
     || cat $HOME/.ssh/id_rsa.pub >> $HOME/.ssh/authorized_keys
