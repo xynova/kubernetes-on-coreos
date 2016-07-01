@@ -6,28 +6,30 @@
 
 On your machine
 
-```
-# Move into the vagrant directory
-cd vagrant
-
-# execute the following if you are on a windows host
-init-ansible-keys.sh
-
-# UP the CoreOS virtual machines
-vagrant up && vagrant ssh agent
-```
-
-Once in the agent session run the ansible playbook as following 
-
-**Attention:** This will take a long time as it has to pull a few GB in docker image material :)
+- Move into the vagrant directory.
+- Execute the `init-ansible-keys.sh` if you are on a windows host.
+- Start the CoreOS virtual machines
 
 ```
-# You should be in the /home/core dir
-# Move into the ansible directory
-cd ansible
+$ cd vagrant
+$ init-ansible-keys.sh # if you are on windows
+$ vagrant up && vagrant ssh agent
+```
 
-# Run the playbooks 
-# the agent playbook will download and cache all 
-# required container images
-run-playbook kube-agent.yml kube-cluster.yml
+In the "**agent**" session run the ansible `kube-agent.yml` and `kube-cluster.yml` playbooks. 
+
+
+```
+# Session: agent@/home/core
+$ cd ansible
+$ run-playbook kube-agent.yml kube-cluster.yml
+```
+
+**Attention:** the `kube-agent.yml` playbook might take some time to execute depending on the internet connection speed.  Part of its behaviour is to download and cache all external images and files required to bootstrap the cluster (**~1.5GB**). 
+This technique allows recreating the cluster at any point in time with minimal network bandwidth requirements provided the **agent** host's state is preserved. In other words, don't `vagrant destroy` it.
+
+The cluster will then be available through the `kubectl` tool.
+
+```
+$ kubectl cluster-info
 ```
