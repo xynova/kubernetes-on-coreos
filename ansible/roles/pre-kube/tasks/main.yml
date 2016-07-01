@@ -27,14 +27,4 @@
   become: true
   become_method: sudo
 
-- name: Ensure .kube config directory
-  raw: >
-    mkdir -p {{ item }}
-  with_items:
-    - "{{ home_kubeconfig_dir }}"
-  changed_when: false
-
-- name: Create default inner cluster kubeconfig
-  template: src=kubeconfig.j2 dest={{ home_kubeconfig_dir }}/config
-
 

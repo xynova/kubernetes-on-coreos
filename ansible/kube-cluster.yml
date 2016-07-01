@@ -28,6 +28,7 @@
     - { role: pre-kube, kube_node_type: master }
     - flannel
     - kube-master
+    - kube-client
   strategy: free
   tags: kube-masters
 
@@ -47,6 +48,7 @@
     - { role: pre-kube, kube_node_type: worker }
     - flannel
     - kube-worker
+    - kube-client
   strategy: free
   tags: kube-workers
 

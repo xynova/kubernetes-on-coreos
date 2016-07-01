@@ -1,0 +1,26 @@
+---
+
+- name: Move kubectl from {{ work_dir }} into {{ opt_bin_dir }}
+  shell: >
+    ls {{ item }} > /dev/null && cp {{ item }} {{ opt_bin_dir }} 
+  args:
+    chdir: "{{ work_dir }}"
+  with_items: 
+    - kubectl
+  register: command_result
+  failed_when: false
+  changed_when: command_result | succeeded
+
+
+- name: Ensure .kube config directory
+  raw: >
+    mkdir -p {{ item }}
+  with_items:
+    - "{{ home_kubeconfig_dir }}"
+  changed_when: false
+
+
+- name: Create default inner cluster kubeconfig
+  template: src=kubeconfig.j2 dest={{ home_kubeconfig_dir }}/config
+
+
