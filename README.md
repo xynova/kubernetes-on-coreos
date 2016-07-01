@@ -32,4 +32,6 @@ This technique allows recreating the cluster at any point in time with minimal n
 
 ```
 $ kubectl cluster-info
+Kubernetes master is running at http://172.17.4.101:8080
+KubeDNS is running at http://172.17.4.101:8080/api/v1/proxy/namespaces/kube-system/services/kube-dns
 ```
