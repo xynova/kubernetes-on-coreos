@@ -16,13 +16,13 @@
       - /etc/systemd/system/docker.service.d
 
   - name: Create flannel options file
-    template: src=flannel-options-file.j2 dest=/etc/flannel/options.env
+    template: src=flannel-options.env.j2 dest=/etc/flannel/options.env
 
   - name: Extend flanneld unit file with link to options file
-    template: src=flannel-options-unit.j2 dest=/etc/systemd/system/flanneld.service.d/40-link-options.conf
+    template: src=flannel-options.conf.j2 dest=/etc/systemd/system/flanneld.service.d/40-link-options.conf
 
   - name: Extend docker.service to wait for flanneld.service to be ready
-    template: src=waitForFlanneld-unit.j2 dest=/etc/systemd/system/docker.service.d/30-waitForFlanneld.conf
+    template: src=waitForFlanneld.conf.j2 dest=/etc/systemd/system/docker.service.d/30-waitForFlanneld.conf
 
   - name: Cleanup previous docker network state
     shell: |

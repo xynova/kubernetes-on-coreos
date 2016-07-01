@@ -6,10 +6,10 @@
     template: src={{ item.src }} dest={{ item.dest }}
     with_items:
       - { src: kubelet.service.j2, dest: /etc/systemd/system/kubelet.service }
-      - { src: kube-scheduler.j2, dest: /etc/kubernetes/manifests/kube-scheduler.yml }
-      - { src: kube-proxy.j2, dest: /etc/kubernetes/manifests/kube-proxy.yml }
-      - { src: kube-controller.j2, dest: /etc/kubernetes/manifests/kube-controller.yml }
-      - { src: kube-apiserver.j2, dest: /etc/kubernetes/manifests/kube-apiserver.yml }
+      - { src: kube-scheduler.yml.j2, dest: /etc/kubernetes/manifests/kube-scheduler.yml }
+      - { src: kube-proxy.yml.j2, dest: /etc/kubernetes/manifests/kube-proxy.yml }
+      - { src: kube-controller.yml.j2, dest: /etc/kubernetes/manifests/kube-controller.yml }
+      - { src: kube-apiserver.yml.j2, dest: /etc/kubernetes/manifests/kube-apiserver.yml }
 
   - name: Start kubelet
     shell: |

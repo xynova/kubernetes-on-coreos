@@ -1,7 +1,7 @@
 ---
 
 - name: Copy manifests
-  template: src={{ item }}.j2 dest={{ srv_kubernetes_manifests }}/{{ item }}.yml
+  template: src={{ item }}.yml.j2 dest={{ srv_kubernetes_manifests }}/{{ item }}.yml
   with_items:
     - kube-system
     - dns-svc

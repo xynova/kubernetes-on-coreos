@@ -6,7 +6,7 @@
       mkdir -p /etc/systemd/system/etcd2.service.d
 
   - name: Extend etcd with Environment file
-    template: src=20-environment.j2 dest=/etc/systemd/system/etcd2.service.d/20-environment.conf 
+    template: src=20-environment.conf.j2 dest=/etc/systemd/system/etcd2.service.d/20-environment.conf 
   
   - name: Enable etcd
     shell: |
