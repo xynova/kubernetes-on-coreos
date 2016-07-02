@@ -12,7 +12,7 @@ docker_flannel_images:
 
 google_registry: gcr.io/google_containers
 
-kube_version: 1.2.4
+kube_version: 1.3.0
 docker_kube_hyperkube_image: { name: "hyperkube", tag: "v{{ kube_version }}", registry: "{{ google_registry }}" }
 
 docker_kube_ui_images:

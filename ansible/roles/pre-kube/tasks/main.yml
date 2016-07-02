@@ -22,6 +22,7 @@
   with_items:
     - "{{ etc_kubernetes_ssl_dir }}"
     - "{{ etc_kubernetes_manifests }}" 
+    - "{{ etc_kubernetes_addons }}"
     - "{{ srv_kubernetes_manifests }}"
   changed_when: false
   become: true
