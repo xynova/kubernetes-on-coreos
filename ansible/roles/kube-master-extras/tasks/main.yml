@@ -4,7 +4,7 @@
   template: src={{ item }}.yml.j2 dest={{ etc_kubernetes_addons }}/{{ item }}.yaml
   with_items:
     - dns-svc
-    - dns-rc-v15
+    - dns-rc
   become: true
   become_method: sudo
 
