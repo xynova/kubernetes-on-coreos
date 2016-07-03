@@ -3,4 +3,5 @@
 etc_kubernetes_ssl_dir: /etc/kubernetes/ssl
 etc_kubernetes_manifests: /etc/kubernetes/manifests
 etc_kubernetes_addons: /etc/kubernetes/addons
+etc_kubernetes_admissionControls: /etc/kubernetes/admission-controls
 srv_kubernetes_manifests: /srv/kubernetes/manifests

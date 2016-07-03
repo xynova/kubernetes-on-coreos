@@ -23,6 +23,7 @@
     - "{{ etc_kubernetes_ssl_dir }}"
     - "{{ etc_kubernetes_manifests }}" 
     - "{{ etc_kubernetes_addons }}"
+    - "{{ etc_kubernetes_admissionControls }}"
     - "{{ srv_kubernetes_manifests }}"
   changed_when: false
   become: true
