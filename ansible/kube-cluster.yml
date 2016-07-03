@@ -33,12 +33,12 @@
   tags: kube-masters
 
 
-#- hosts: kube-masters
-#  gather_facts: false
-#  run_once: true
-#  roles:
-#    - kube-master-extras
-#  tags: kube-master-extras
+- hosts: kube-masters
+  gather_facts: false
+  run_once: true
+  roles:
+    - kube-master-extras
+  tags: kube-master-extras
 
 - hosts: kube-workers
   gather_facts: false

@@ -1,20 +1,20 @@
 ---
 
-- name: Copy manifests
-  template: src={{ item }}.yml.j2 dest={{ srv_kubernetes_manifests }}/{{ item }}.yml
-  with_items:
-    - kube-system
-    - dns-svc
-    - dns-rc
-  become: true
-  become_method: sudo
+#- name: Copy manifests
+#  template: src={{ item }}.yml.j2 dest={{ etc_kubernetes_addons }}/{{ item }}.yml
+#  with_items:
+#    - kube-system
+#    - dns-svc
+#    - dns-rc
+#  become: true
+#  become_method: sudo
 
 
-- name: Push to kubectl
-  shell: kubectl create -f {{ srv_kubernetes_manifests }}/{{ item }}.yml
-  register: command_result
-  failed_when: "command_result | failed and 'already exists' not in command_result.stderr and 'already allocated' not in command_result.stderr"
-  with_items:
-    - kube-system
-    - dns-svc
-    - dns-rc
+#- name: Push to kubectl
+#  shell: kubectl create -f {{ srv_kubernetes_manifests }}/{{ item }}.yml
+#  register: command_result
+#  failed_when: "command_result | failed and 'already exists' not in command_result.stderr and 'already allocated' not in command_result.stderr"
+#  with_items:
+#    - kube-system
+#    - dns-svc
+#    - dns-rc

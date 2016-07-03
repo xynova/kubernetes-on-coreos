@@ -19,7 +19,8 @@ docker_kube_ui_images:
   - { name: "kubernetes-dashboard-amd64", tag: "v1.0.1" , registry: "{{ google_registry }}" }
 
 docker_kube_dns_images:
-  - { name: "etcd-amd64", tag: "2.2.5", registry: "{{ google_registry }}"}
+  - { name: "kube-addon-manager", tag: "v5", registry: "{{ google_registry }}" }
+  - { name: "etcd-amd64", tag: "2.2.5", registry: "{{ google_registry }}" }
   - { name: "kube2sky-amd64", tag: "1.15", registry: "{{ google_registry }}" }
   - { name: "skydns-amd64", tag: "1.0", registry: "{{ google_registry }}" }
 
