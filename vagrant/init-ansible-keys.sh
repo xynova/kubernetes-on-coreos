@@ -9,3 +9,6 @@ ls -a | grep -q .ssh || mkdir .ssh
 
 # Create private ssh key if it doesn't exist yet
 ls .ssh | grep -q id_rsa || ssh-keygen -b 2048 -t rsa -f .ssh/id_rsa -q -N ''
+
+# Enable ansible keys from vagrant host
+ln -sf $(pwd)/.ssh ../.ssh
