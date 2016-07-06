@@ -14,7 +14,7 @@ DNS.1 = kubernetes
 DNS.2 = kubernetes.default
 DNS.3 = kubernetes.default.svc
 DNS.4 = kubernetes.default.svc.cluster.local
-IP.1 = {{ kube_services_network_block | ipaddr(1) | ipaddr('address') }} 
+IP.1 = {{ kube_api_service_ip }} 
 {% for hostname in groups['kube-masters'] %}
 IP.{{ loop.index + 1 }} = {{ hostname | ipaddr }}
 {% endfor %}
