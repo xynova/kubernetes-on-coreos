@@ -1,0 +1,51 @@
+---
+
+- name: Set certificate facts
+  set_fact:
+    ca_key: "ca-key.pem"
+    ca_cert: "ca.pem"
+
+- name: Ensure certs dir
+  file: path={{ certs_dir }} state=directory  mode=0700
+
+- name: Create cluster CA
+  shell: |
+    openssl genrsa -out {{ ca_key }} 2048
+    openssl req -x509 -new -nodes -key {{ ca_key }} -days 10000 -out {{ ca_cert }} -subj "/CN=kube-ca"  2>/dev/null
+  args:
+    chdir: "{{ certs_dir }}"
+    creates: "{{ certs_dir }}/{{ ca_cert }}"
+
+- name: Create TLS cert request openssl configuration files (.cnf)
+  template: src={{ item }}.csr.cnf.j2 dest={{ certs_dir }}/{{ item }}.csr.cnf
+  with_items:
+    - etcd
+    - api-server
+  register: command_result 
+ 
+- name: Allow certs to be recreated when request configuration files change 
+  file: path={{ certs_dir }}/{{ item.item }}.tar state=absent
+  with_items: "{{ command_result.results }}"
+  when: "{{ item | changed }}"
+
+- name: Create and sign TLS certs
+  shell: |
+    openssl genrsa -out {{ item }}-key.pem  2048
+    openssl req -new -key {{ item }}-key.pem -out {{ item }}.csr -subj "/CN={{ item }}" -config {{ item }}.csr.cnf
+    openssl x509 -req -in {{ item }}.csr -CA {{ ca_cert }} -CAkey {{ ca_key }} -CAcreateserial -out {{ item }}.pem -days 365 -extensions v3_req -extfile {{ item }}.csr.cnf
+    tar -cf {{ item }}.tar ca.pem {{ item }}-key.pem {{ item }}.pem
+  with_items:
+    - etcd
+    - api-server 
+  args:
+    chdir: "{{ certs_dir }}"
+    creates: "{{ certs_dir }}/{{ item }}.tar"
+
+#- debug: msg="{{ lookup('template', 'etcd-req.cnf.j2') }}"
+#- name: Create etcd TLS certs
+
+
+#- name: Create api-server certs
+
+
+#- name:  
