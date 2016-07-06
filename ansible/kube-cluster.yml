@@ -2,16 +2,10 @@
 
 - hosts: [ etcd, kube-masters, kube-workers ]
   gather_facts: false
-  tasks:
-    - name: Disable Locksmithd service
-      raw: systemctl disable locksmithd && systemctl stop locksmithd
-      become: true
-      become_method: sudo
-
-    - name: Copy {{ work_dir }} from agent
-      synchronize: src={{ work_dir }} dest={{ home_dir }} mode=push
-      delegate_to: "{{ groups['agent'] | first }}"
-  tags: [pre, always]
+  roles:
+    - prep-node
+  strategy: free
+  tags: [prep-node, always]
 
 - hosts: etcd
   gather_facts: false
@@ -51,8 +45,5 @@
     - kube-client
   strategy: free
   tags: kube-workers
-
-
-
 
 

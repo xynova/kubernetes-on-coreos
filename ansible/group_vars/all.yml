@@ -1,6 +1,6 @@
 ---
 
-etcd_endpoint_scheme: http
+etcd_endpoint_scheme: https
 etcd_endpoints: "{% for hostname in groups['etcd'] %}{{ etcd_endpoint_scheme }}://{{ hostname }}:2379{% if not loop.last %},{% endif %}{% endfor %}"
 
 master_endpoint_scheme: http
@@ -14,10 +14,12 @@ kube_dns_service_ip: 10.3.0.10
 
 home_dir: /home/core
 work_dir: "{{ home_dir }}/prep-files"
-certs_dir: "{{ home_dir }}/cert-files"
 
 opt_dir: /opt
 opt_bin_dir: "{{ opt_dir }}/bin"
+
+kube_ca_path: /etc/ssl/certs
+kube_ca_filename: kube-ca.pem
 
 
 

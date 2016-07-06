@@ -1,0 +1,29 @@
+---
+
+- name: Disable Locksmithd service
+  raw: systemctl disable locksmithd && systemctl stop locksmithd
+  become: true
+  become_method: sudo
+
+- name: Copy {{ work_dir }} from agent
+  synchronize: src={{ work_dir }} dest={{ home_dir }} mode=push
+  delegate_to: "{{ groups['agent'] | first }}"
+
+- name: Remove unnecesary cert files for etcd
+  file: path={{ work_dir }}/certs/{{ item }} state=absent
+  with_items:
+    - api-server.tar
+  when: "'etcd' in group_names"
+
+- name: Remove unnecesary cert files for kube-nodes
+  file: path={{ work_dir }}/certs/{{ item }} state=absent
+  with_items:
+    - etcd.tar
+  when: "'kube-nodes' in group_names"
+
+- name: Remove unnecesary cert files for kube-workers
+  file: path={{ work_dir }}/certs/{{ item }} state=absent
+  with_items:
+    - api-server.tar
+  when: "'kube-workers' in group_names"
+

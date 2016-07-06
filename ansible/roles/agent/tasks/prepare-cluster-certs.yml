@@ -2,11 +2,15 @@
 
 - name: Set certificate facts
   set_fact:
-    ca_key: "ca-key.pem"
-    ca_cert: "ca.pem"
+    certs_dir: "{{ home_dir }}/cert-files"
+    ca_key: "kube-ca-key.pem"
+    ca_cert: "kube-ca.pem"
 
 - name: Ensure certs dir
-  file: path={{ certs_dir }} state=directory  mode=0700
+  file: path={{ item }} state=directory  mode=0700
+  with_items:
+    - "{{ certs_dir }}"
+    - "{{ work_dir }}/certs"
 
 - name: Create cluster CA
   shell: |
@@ -33,7 +37,7 @@
     openssl genrsa -out {{ item }}-key.pem  2048
     openssl req -new -key {{ item }}-key.pem -out {{ item }}.csr -subj "/CN={{ item }}" -config {{ item }}.csr.cnf
     openssl x509 -req -in {{ item }}.csr -CA {{ ca_cert }} -CAkey {{ ca_key }} -CAcreateserial -out {{ item }}.pem -days 365 -extensions v3_req -extfile {{ item }}.csr.cnf
-    tar -cf {{ item }}.tar ca.pem {{ item }}-key.pem {{ item }}.pem
+    tar -cf {{ item }}.tar {{ item }}-key.pem {{ item }}.pem
   with_items:
     - etcd
     - api-server 
@@ -41,11 +45,12 @@
     chdir: "{{ certs_dir }}"
     creates: "{{ certs_dir }}/{{ item }}.tar"
 
-#- debug: msg="{{ lookup('template', 'etcd-req.cnf.j2') }}"
-#- name: Create etcd TLS certs
+- name: Copy cert files to {{ work_dir }}
+  shell: >
+    cp -f {{ certs_dir }}/{{ item }} {{ work_dir }}/certs/{{ item }} 
+  with_items:
+    - "{{ ca_cert }}"
+    - etcd.tar
+    - api-server.tar
+  changed_when: false
 
-
-#- name: Create api-server certs
-
-
-#- name:  

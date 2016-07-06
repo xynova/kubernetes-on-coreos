@@ -1,0 +1,7 @@
+---
+
+work_certs_dir: "{{ work_dir }}/certs"
+kube_ca_cert: "{{ kube_ca_path }}/{{ kube_ca_filename }}"
+etcd_tls_dir: /etc/ssl/etcd
+etcd_tls_cert: /etc/ssl/etcd/etcd.pem
+etcd_tls_key: /etc/ssl/etcd/etcd-key.pem
