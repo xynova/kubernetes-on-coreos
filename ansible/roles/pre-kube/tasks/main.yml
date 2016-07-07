@@ -22,7 +22,8 @@
   with_items:
     - "{{ kube_certs_dir }}"
     - "{{ kube_manifests_dir }}" 
-    - "{{ srv_kubernetes_manifests }}"
+    - "{{ kube_addons_dir }}"
+    - "{{ kube_admissionControls_dir }}"
   changed_when: false
   become: true
   become_method: sudo

@@ -10,21 +10,18 @@ flanel_network_block: 10.1.0.0/16
 flannel_network_backend_type: vxlan
 
 kube_services_network_block: 10.3.0.0/24
-kube_dns_service_ip: {{ kube_services_network_block | ipaddr('net') | ipaddr(10) | ipaddr('address') }}
-kube_api_service_ip: {{ kube_services_network_block | ipaddr('net') | ipaddr(1) | ipaddr('address') }}
-
-home_dir: /home/core
-work_dir: "{{ home_dir }}/prep-files"
-
-opt_dir: /opt
-opt_bin_dir: "{{ opt_dir }}/bin"
+kube_dns_service_ip: "{{ kube_services_network_block | ipaddr('net') | ipaddr(10) | ipaddr('address') }}"
+kube_api_service_ip: "{{ kube_services_network_block | ipaddr('net') | ipaddr(1) | ipaddr('address') }}"
 
 kube_ca_dir: /etc/ssl/certs
 kube_ca_filename: kube-ca.pem
 
+# Directory where we copy and work with files
+home_dir: /home/core
+work_dir: "{{ home_dir }}/prep-files"
 
-
-
-
+# Directory where custom executables are run from in CoreOS
+opt_dir: /opt
+opt_bin_dir: "{{ opt_dir }}/bin"
 
 

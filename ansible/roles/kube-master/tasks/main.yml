@@ -10,6 +10,7 @@
       - { src: kube-proxy.yml.j2, dest: /etc/kubernetes/manifests/kube-proxy.yml }
       - { src: kube-controller.yml.j2, dest: /etc/kubernetes/manifests/kube-controller.yml }
       - { src: kube-apiserver.yml.j2, dest: /etc/kubernetes/manifests/kube-apiserver.yml }
+      - { src: kube-addon-manager.yml.j2, dest: /etc/kubernetes/manifests/kube-addon-manager.yml }
 
   - name: Start kubelet
     shell: |

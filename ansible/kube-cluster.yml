@@ -34,7 +34,6 @@
     - kube-master-extras
   tags: kube-master-extras
 
-
 - hosts: kube-workers
   gather_facts: false
   roles:
