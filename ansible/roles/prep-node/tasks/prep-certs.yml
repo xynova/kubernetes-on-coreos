@@ -1,0 +1,44 @@
+---
+
+- name: Set local facts
+  set_fact:
+    kube_ca_cert_filename: "{{ kube_ca_cert.split('/') | last }}"
+
+- block:
+  - name: Move kube-ca to /etc/ssl/certs and reload certs
+    shell: >
+      mv {{ work_certs_dir }}/{{ kube_ca_cert_filename }} {{ kube_ca_cert }} 
+      && update-ca-certificates
+    args:
+      creates: "{{ kube_ca_cert }}"
+
+  - name: Set cluster certificate permission and ownership
+    file: path={{ kube_ca_cert }} mode=0444 owner=root group=root 
+
+  become: true
+  become_method: sudo
+
+- name: Remove unnecesary etcd cert files from {{ work_dir }}
+  file: path={{ work_dir }}/certs/{{ item }} state=absent
+  with_items:
+    - api-server.tar
+    - "{{ kube_ca_cert_filename }}"
+  when: "'etcd' in group_names"
+  changed_when: false
+
+- name: Remove unnecesary kube-node cert files from {{ work_dir }}
+  file: path={{ work_dir }}/certs/{{ item }} state=absent
+  with_items:
+    - etcd.tar
+    - "{{ kube_ca_cert_filename }}"
+  when: "'kube-nodes' in group_names"
+  changed_when: false
+
+- name: Remove unnecesary kube-worker cert files from {{ work_dir }}
+  file: path={{ work_dir }}/certs/{{ item }} state=absent
+  with_items:
+    - api-server.tar
+    - "{{ kube_ca_cert_filename }}"
+  when: "'kube-workers' in group_names"
+  changed_when: false
+

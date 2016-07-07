@@ -2,17 +2,11 @@
 
 - block:
     
-  - name: Move kube-ca to /etc/ssl/certs and reload certs
-    raw: >
-      ls {{ work_certs_dir }} | grep -q {{ kube_ca_filename }} 
-      && mv {{ work_certs_dir }}/{{ kube_ca_filename }} {{ kube_ca_cert }} 
-      && update-ca-certificates
-
   - name: Ensure etcd TLS directory
     file: path={{ etcd_tls_dir }} state=directory recurse=true 
 
   - name: Un-tar etcd certs into TLS directory
-    raw: >
+    shell: >
       ls {{ work_certs_dir }} | grep -q etcd.tar 
       && tar -xf {{ work_certs_dir }}/etcd.tar -C {{ etcd_tls_dir }} 
       && rm -f {{ work_certs_dir }}/etcd.tar
@@ -26,7 +20,6 @@
     raw: |
       chmod {{ item.permission }} {{ item.path }}
     with_items:
-      - { path: "{{ kube_ca_cert }}", permission: "0444" }
       - { path: "{{ etcd_tls_cert }}", permission: "0400" }
       - { path: "{{ etcd_tls_key }}", permission: "0400" }
 
