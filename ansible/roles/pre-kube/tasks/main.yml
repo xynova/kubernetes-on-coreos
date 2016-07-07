@@ -20,8 +20,8 @@
   raw: >
     mkdir -p {{ item }}
   with_items:
-    - "{{ etc_kubernetes_ssl_dir }}"
-    - "{{ etc_kubernetes_manifests }}" 
+    - "{{ kube_certs_dir }}"
+    - "{{ kube_manifests_dir }}" 
     - "{{ srv_kubernetes_manifests }}"
   changed_when: false
   become: true

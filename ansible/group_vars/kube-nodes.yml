@@ -1,5 +1,5 @@
 ---
 
-etc_kubernetes_ssl_dir: /etc/kubernetes/ssl
-etc_kubernetes_manifests: /etc/kubernetes/manifests
+kube_certs_dir: /etc/kubernetes/certs
+kube_manifests_dir: /etc/kubernetes/manifests
 srv_kubernetes_manifests: /srv/kubernetes/manifests
