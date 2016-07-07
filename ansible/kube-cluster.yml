@@ -26,7 +26,7 @@
     - flannel
     - kube-master
     - kube-client
-#  strategy: free
+  strategy: free
   tags: kube-masters
 
 

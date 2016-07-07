@@ -18,8 +18,8 @@ spec:
     - --apiserver-count=1
     - --authorization-mode=AlwaysAllow
     - --bind-address=0.0.0.0    
-#    - --client-ca-file=/etc/kubernetes/ssl/ca.pem
-#    - --etcd-cafile=""
+#    - --client-ca-file=/etc/kubernetes/certs/ca.pem
+    - --etcd-cafile={{ kube_ca_cert }}
 #    - --etcd-certfile=""
 #    - --etcd-keyfile=""
 #    - --etcd-prefix=/registry
@@ -30,11 +30,11 @@ spec:
     - --insecure-port=8080
     - --kubernetes-service-node-port=0
     - --secure-port=6443   
-#    - --service-account-key-file=/etc/kubernetes/ssl/apiserver-key.pem
+#    - --service-account-key-file=/etc/kubernetes/certs/apiserver-key.pem
     - --service-account-lookup=false
     - --service-cluster-ip-range={{ kube_services_network_block }}
-#    - --tls-cert-file=/etc/kubernetes/ssl/apiserver.pem
-#    - --tls-private-key-file=/etc/kubernetes/ssl/apiserver-key.pem    
+#    - --tls-cert-file=/etc/kubernetes/certs/apiserver.pem
+#    - --tls-private-key-file=/etc/kubernetes/certs/apiserver-key.pem    
     - --runtime-config=extensions/v1beta1=true,extensions/v1beta1/thirdpartyresources=true
     ports:
 #    - containerPort: 443
@@ -44,7 +44,7 @@ spec:
       hostPort: 8080
       name: local
     volumeMounts:
-    - mountPath: /etc/kubernetes/ssl
+    - mountPath: /etc/kubernetes/certs
       name: ssl-certs-kubernetes
       readOnly: true
     - mountPath: /etc/ssl/certs
@@ -52,10 +52,10 @@ spec:
       readOnly: true
   volumes:
   - hostPath:
-      path: /etc/kubernetes/ssl
+      path: /etc/kubernetes/certs
     name: ssl-certs-kubernetes
   - hostPath:
-      path: /usr/share/ca-certificates
+      path: {{ kube_ca_cert | dirname }}
     name: ssl-certs-host
 
 

@@ -7,22 +7,23 @@
   delegate_to: "{{ groups['etcd'] | first }}"
 
 - block:
-  - name: Create directories
-    shell: |
-      mkdir -p {{ item }}
+  - name: Create flannel and docker service extension directories
+    file: path={{ item }} state=directory recurse=true
     with_items:
       - /etc/flannel
       - /etc/systemd/system/flanneld.service.d
       - /etc/systemd/system/docker.service.d
+      - /etc/ssl/etcd
 
-  - name: Create flannel options file
-    template: src=flannel-options.env.j2 dest=/etc/flannel/options.env
+  - name: Create kube-ca link into /etc/ssl/etcd directory mounted by flanneld rtk service
+    copy: remote_src=true src={{ kube_ca_cert }} dest=/etc/ssl/etcd/{{ kube_ca_cert | basename }} 
 
-  - name: Extend flanneld unit file with link to options file
-    template: src=flannel-options.conf.j2 dest=/etc/systemd/system/flanneld.service.d/40-link-options.conf
-
-  - name: Extend docker.service to wait for flanneld.service to be ready
-    template: src=waitForFlanneld.conf.j2 dest=/etc/systemd/system/docker.service.d/30-waitForFlanneld.conf
+  - name: Create flannel service extension files
+    template: src={{ item.src }} dest={{ item.dest }}
+    with_items:
+      - { src: flannel-options.env.j2, dest: /etc/flannel/options.env }
+      - { src: flannel-options.conf.j2, dest: /etc/systemd/system/flanneld.service.d/40-link-options.conf }
+      - { src: waitForFlanneld.conf.j2, dest: /etc/systemd/system/docker.service.d/30-waitForFlanneld.conf }
 
   - name: Cleanup previous docker network state
     shell: |
