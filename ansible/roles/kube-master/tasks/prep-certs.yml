@@ -11,10 +11,10 @@
       && tar -xf {{ work_certs_dir }}/api-server.tar -C {{ kube_certs_dir }} 
       && rm -f {{ work_certs_dir }}/api-server.tar
       
-#  - name: Make root the owner of its TLS directory
-#    file: path={{ kube_certs_dir }} owner=root group=root recurse=true 
-#    with_items:
-#      - "{{ kube_certs_dir }}"
+  - name: Make root the owner of its TLS directory
+    file: path={{ kube_certs_dir }} owner=root group=root recurse=true 
+    with_items:
+      - "{{ kube_certs_dir }}"
     
   - name: Set appropriate permissions for certificates
     raw: |
