@@ -6,9 +6,6 @@
 - name: INCLUDE download Kubernetes binaries
   include: download-binaries.yml
 
-- name: Start rkt system units
-  include: write-rkt-units.yml
-
 - name: Prepare cluster certs
   include: prepare-cluster-certs.yml
   tags: cluster-certs

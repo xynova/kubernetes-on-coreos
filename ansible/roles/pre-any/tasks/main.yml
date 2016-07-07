@@ -26,3 +26,6 @@
   include: install-pip.yml
   when: installPip | default(false)
 
+- name: Start rkt system units
+  include: write-rkt-units.yml
+
