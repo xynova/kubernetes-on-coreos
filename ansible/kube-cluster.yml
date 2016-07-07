@@ -2,15 +2,19 @@
 
 - hosts: [ etcd, kube-masters, kube-workers ]
   gather_facts: false
+  pre_tasks:
+    - include: tasks/disable-updates.yml
+    - include: tasks/transfer-workfiles.yml
   roles:
-    - prep-node
+    - pre-any
+  post_tasks:
+    - include: tasks/prep-cert-files.yml
   strategy: free
-  tags: [prep-node, always]
+  tags: always
 
 - hosts: etcd
   gather_facts: false
   roles: 
-    - pre-any
     - etcd 
   strategy: free
   tags: etcd
@@ -18,12 +22,11 @@
 - hosts: kube-masters
   gather_facts: false
   roles:
-    - pre-any
     - { role: pre-kube, kube_node_type: master }
     - flannel
     - kube-master
     - kube-client
-  strategy: free
+#  strategy: free
   tags: kube-masters
 
 
@@ -37,7 +40,6 @@
 - hosts: kube-workers
   gather_facts: false
   roles:
-    - pre-any
     - { role: pre-kube, kube_node_type: worker }
     - flannel
     - kube-worker

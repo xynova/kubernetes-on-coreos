@@ -1,6 +1,12 @@
 ---
 
 - block:
+  - name: Cleanup any previous unit extensions
+    file: path=/etc/systemd/system/{{ item }} state=absent
+    with_items:
+      - docker.service.d
+      - early-docker.service.d
+
   - name: Create temporary DOCKER_OPTS systemd directories
     file: path=/etc/systemd/system/{{ item }} recurse=true state=directory
     with_items:

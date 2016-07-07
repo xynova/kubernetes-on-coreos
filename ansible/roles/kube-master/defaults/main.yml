@@ -1,4 +1,6 @@
 ---
 
-
 docker_hyperkube: "{{ google_registry }}/{{ docker_kube_hyperkube_image.name }}:{{ docker_kube_hyperkube_image.tag }}"
+
+apiServer_tls_cert: "{{ kube_certs_dir }}/api-server.pem"
+apiServer_tls_key: "{{ kube_certs_dir }}/api-server-key.pem"

@@ -1,7 +1,9 @@
 ---
 
-- block:
+- name: INCLUDE Prep certs
+  include: prep-certs.yml
 
+- block:
   - name: Copy manifests
     template: src={{ item.src }} dest={{ item.dest }}
     with_items:

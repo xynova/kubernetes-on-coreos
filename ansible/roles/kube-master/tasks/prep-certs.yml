@@ -1,0 +1,29 @@
+---
+
+- block:
+    
+  - name: Ensure kube TLS directory
+    file: path={{ kube_certs_dir }} state=directory recurse=true 
+
+  - name: Un-tar api-server certs into TLS directory
+    shell: >
+      ls {{ work_certs_dir }} | grep -q api-server.tar 
+      && tar -xf {{ work_certs_dir }}/api-server.tar -C {{ kube_certs_dir }} 
+      && rm -f {{ work_certs_dir }}/api-server.tar
+      
+#  - name: Make root the owner of its TLS directory
+#    file: path={{ kube_certs_dir }} owner=root group=root recurse=true 
+#    with_items:
+#      - "{{ kube_certs_dir }}"
+    
+  - name: Set appropriate permissions for certificates
+    raw: |
+      chmod {{ item.permission }} {{ item.path }}
+    with_items:
+      - { path: "{{ apiServer_tls_key }}", permission: "0400" }
+      - { path: "{{ apiServer_tls_cert }}", permission: "0400" }
+
+  become: true
+  become_method: sudo
+
+

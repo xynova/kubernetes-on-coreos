@@ -11,4 +11,4 @@ ls -a | grep -q .ssh || mkdir .ssh
 ls .ssh | grep -q id_rsa || ssh-keygen -b 2048 -t rsa -f .ssh/id_rsa -q -N ''
 
 # Enable ansible keys from vagrant host
-ln -sf $(pwd)/.ssh ../.ssh
+rm -Rf ../.ssh && ln -sf $(pwd)/.ssh ../.ssh 

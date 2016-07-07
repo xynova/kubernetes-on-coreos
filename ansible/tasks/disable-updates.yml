@@ -1,0 +1,7 @@
+---
+
+- name: Disable Locksmithd service
+  raw: systemctl disable locksmithd && systemctl stop locksmithd
+  become: true
+  become_method: sudo
+
