@@ -1,21 +1,7 @@
 ---
 
-etcd_endpoint_scheme: https
-etcd_endpoints: "{% for hostname in groups['etcd'] %}{{ etcd_endpoint_scheme }}://{{ hostname }}:2379{% if not loop.last %},{% endif %}{% endfor %}"
-
-master_endpoint_scheme: https
-master_endpoints: "{% for hostname in groups['kube-masters'] %}{{ master_endpoint_scheme }}://{{ hostname }}:443{% if not loop.last %},{% endif %}{% endfor %}"
-
-flanel_network_block: 10.1.0.0/16
-flannel_network_backend_type: vxlan
-
-kube_services_network_block: 10.3.0.0/24
-kube_dns_service_ip: "{{ kube_services_network_block | ipaddr('net') | ipaddr(10) | ipaddr('address') }}"
-kube_api_service_ip: "{{ kube_services_network_block | ipaddr('net') | ipaddr(1) | ipaddr('address') }}"
-kube_cluster_domain: cluster.local
-kube_ca_cert: /etc/ssl/certs/kube-ca.pem
-kube_systemAccount_cert: /etc/kubernetes/certs/system-account-user.pem
-kube_systemAccount_key: /etc/kubernetes/certs/system-account-user-key.pem
+# KNOWN DIRECTORIES
+#########################
 
 # Directory where we copy and work with files
 home_dir: /home/core
@@ -25,5 +11,39 @@ work_certs_dir: "{{ work_dir }}/certs"
 # Directory where custom executables are run from in CoreOS
 opt_dir: /opt
 opt_bin_dir: "{{ opt_dir }}/bin"
+
+
+# KUBE CONFIG
+#########################
+
+kube_certs_dir: /etc/kubernetes/certs
+kube_manifests_dir: /etc/kubernetes/manifests
+kube_addons_dir: /etc/kubernetes/addons
+kube_admissionControls_dir: /etc/kubernetes/admission-controls
+kube_cluster_config: "{{ kube_certs_dir }}/cluster-kubeconfig"
+
+kube_services_network_block: 10.3.0.0/24
+kube_dns_service_ip: "{{ kube_services_network_block | ipaddr('net') | ipaddr(10) | ipaddr('address') }}"
+kube_api_service_ip: "{{ kube_services_network_block | ipaddr('net') | ipaddr(1) | ipaddr('address') }}"
+kube_cluster_domain: cluster.local
+kube_ca_cert: /etc/ssl/certs/kube-ca.pem
+kube_systemAccount_cert: "{{ kube_certs_dir }}/system-account-user.pem"
+kube_systemAccount_key: "{{ kube_certs_dir }}/system-account-user-key.pem"
+kube_clusterAdmin_cert: "{{ home_dir }}/.kube/cluster-admin-user.pem"
+kube_clusterAdmin_key: "{{ home_dir }}/.kube/cluster-admin-user-key.pem"
+
+
+# NETWORK CONFIGURATION
+#########################
+
+etcd_endpoint_scheme: https
+etcd_endpoints: "{% for hostname in groups['etcd'] %}{{ etcd_endpoint_scheme }}://{{ hostname }}:2379{% if not loop.last %},{% endif %}{% endfor %}"
+
+master_endpoint_scheme: https
+master_endpoints: "{% for hostname in groups['kube-masters'] %}{{ master_endpoint_scheme }}://{{ hostname }}:443{% if not loop.last %},{% endif %}{% endfor %}"
+
+flanel_network_block: 10.1.0.0/16
+flannel_network_backend_type: vxlan
+
 
 

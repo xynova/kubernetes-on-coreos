@@ -12,15 +12,7 @@
   changed_when: command_result | succeeded
 
 
-- name: Ensure .kube config directory
-  raw: >
-    mkdir -p {{ item }}
-  with_items:
-    - "{{ home_kubeconfig_dir }}"
-  changed_when: false
-
-
-- name: Create default inner cluster kubeconfig
-  template: src=kubeconfig.j2 dest={{ home_kubeconfig_dir }}/config
+- name: INCLUDE Prepare cluster-admin kubeconfig
+  include: prep-admin-kubeconfig.yml
 
 

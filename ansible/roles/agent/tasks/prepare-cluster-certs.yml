@@ -5,6 +5,12 @@
     certs_dir: "{{ home_dir }}/cert-files"
     ca_key: "kube-ca-key.pem"
     ca_cert: "{{ kube_ca_cert | basename }}"
+    cluster_certs:
+      - { cn: etcd, cnf: etcd }
+      - { cn: api-server, cnf: api-server }
+      - { cn: system-account-user, cnf: user }
+      - { cn: cluster-admin-user, cnf: user }
+
 
 - name: Ensure certs dir
   file: path={{ item }} state=directory  mode=0700
@@ -21,11 +27,9 @@
     creates: "{{ certs_dir }}/{{ ca_cert }}"
 
 - name: Create TLS cert request openssl configuration files (.cnf)
-  template: src={{ item }}.csr.cnf.j2 dest={{ certs_dir }}/{{ item }}.csr.cnf
-  with_items:
-    - etcd
-    - api-server
-    - system-account-user
+  template: src={{ item.cnf }}.csr.cnf.j2 dest={{ certs_dir }}/{{ item.cn }}.csr.cnf
+  with_items: 
+    - "{{ cluster_certs }}"
   register: command_result 
  
 - name: Allow certs to be recreated when request configuration files change 
@@ -35,25 +39,23 @@
 
 - name: Create and sign TLS certs
   shell: |
-    openssl genrsa -out {{ item }}-key.pem  2048
-    openssl req -new -key {{ item }}-key.pem -out {{ item }}.csr -subj "/CN={{ item }}" -config {{ item }}.csr.cnf
-    openssl x509 -req -in {{ item }}.csr -CA {{ ca_cert }} -CAkey {{ ca_key }} -CAcreateserial -out {{ item }}.pem -days 365 -extensions v3_req -extfile {{ item }}.csr.cnf
-    tar -cf {{ item }}.tar {{ item }}-key.pem {{ item }}.pem
-  with_items:
-    - etcd
-    - api-server 
-    - system-account-user
+    openssl genrsa -out {{ item.cn }}-key.pem  2048
+    openssl req -new -key {{ item.cn }}-key.pem -out {{ item.cn }}.csr -subj "/CN={{ item.cn }}" -config {{ item.cn }}.csr.cnf
+    openssl x509 -req -in {{ item.cn }}.csr -CA {{ ca_cert }} -CAkey {{ ca_key }} -CAcreateserial -out {{ item.cn }}.pem -days 365 -extensions v3_req -extfile {{ item.cn }}.csr.cnf
+    tar -cf {{ item.cn }}.tar {{ item.cn }}-key.pem {{ item.cn }}.pem
+  with_items: 
+    - "{{ cluster_certs }}"
   args:
     chdir: "{{ certs_dir }}"
     creates: "{{ certs_dir }}/{{ item }}.tar"
 
 - name: Copy cert files to {{ work_dir }}
-  shell: >
-    cp -f {{ certs_dir }}/{{ item }} {{ work_dir }}/certs/{{ item }} 
+  copy: >
+    remote_src=true 
+    src={{ certs_dir }}/{{ item.cn }}{{ item.is_pem | default(false) | ternary('','.tar') }} 
+    dest={{ work_dir }}/certs/{{ item.cn }}{{ item.is_pem | default(false) | ternary('','.tar') }}
   with_items:
-    - "{{ ca_cert }}"
-    - etcd.tar
-    - api-server.tar
-    - system-account-user.tar
+    - { cn: "{{ ca_cert }}", is_pem: true }
+    - "{{ cluster_certs }}"
   changed_when: false
 
