@@ -17,15 +17,15 @@
 
 
 - name: Ensure kube-node configuration directories
-  raw: >
-    mkdir -p {{ item }}
+  file: path={{ item }} state=directory recurse=true
   with_items:
     - "{{ kube_certs_dir }}"
     - "{{ kube_manifests_dir }}" 
     - "{{ kube_addons_dir }}"
     - "{{ kube_admissionControls_dir }}"
-  changed_when: false
   become: true
   become_method: sudo
 
 
+- name: INCLUDE Prepare System Account Kubeconfig
+  include: prep-system-kubeconfig.yml

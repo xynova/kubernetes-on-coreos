@@ -12,7 +12,10 @@ flannel_network_backend_type: vxlan
 kube_services_network_block: 10.3.0.0/24
 kube_dns_service_ip: "{{ kube_services_network_block | ipaddr('net') | ipaddr(10) | ipaddr('address') }}"
 kube_api_service_ip: "{{ kube_services_network_block | ipaddr('net') | ipaddr(1) | ipaddr('address') }}"
+kube_cluster_domain: cluster.local
 kube_ca_cert: /etc/ssl/certs/kube-ca.pem
+kube_systemAccount_cert: /etc/kubernetes/certs/system-account-user.pem
+kube_systemAccount_key: /etc/kubernetes/certs/system-account-user-key.pem
 
 # Directory where we copy and work with files
 home_dir: /home/core

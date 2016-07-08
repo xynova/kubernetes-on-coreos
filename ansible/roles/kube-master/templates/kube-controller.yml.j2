@@ -15,10 +15,10 @@ spec:
     - --address=0.0.0.0
     - --cluster-name="kubernetes"
     - --leader-elect=true
-    - --master=http://127.0.0.1:8080                # Master is local server
+    - --master={{ master_endpoints }}            #http://127.0.0.1:8080     # Master is local server
     - --port=10252
-#    - --root-ca-file=/etc/kubernetes/ssl/ca.pem 
-#    - --service-account-private-key-file=/etc/kubernetes/ssl/apiserver-key.pem
+    - --root-ca-file={{ kube_ca_cert }}
+    #- --service-account-private-key-file={{ apiServer_tls_key }}
     livenessProbe:
       httpGet:
         host: 127.0.0.1
@@ -27,17 +27,17 @@ spec:
       initialDelaySeconds: 15
       timeoutSeconds: 1
     volumeMounts:
-    - mountPath: /etc/kubernetes/ssl
+    - mountPath: {{ kube_certs_dir }}
       name: ssl-certs-kubernetes
       readOnly: true
-    - mountPath: /etc/ssl/certs
+    - mountPath: {{ kube_ca_cert | dirname }}
       name: ssl-certs-host
       readOnly: true
   volumes:
   - hostPath:
-      path: /etc/kubernetes/ssl
+      path: {{ kube_certs_dir }}
     name: ssl-certs-kubernetes
   - hostPath:
-      path: /usr/share/ca-certificates
+      path: {{ kube_ca_cert | dirname }}
     name: ssl-certs-host
 

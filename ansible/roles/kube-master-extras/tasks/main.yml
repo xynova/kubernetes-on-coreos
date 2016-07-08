@@ -1,7 +1,7 @@
 ---
 
 - name: Copy manifests
-  template: src={{ item }}.yml.j2 dest={{ etc_kubernetes_addons }}/{{ item }}.yaml
+  template: src={{ item }}.yml.j2 dest={{ kube_addons_dir }}/{{ item }}.yaml
   with_items:
     - dns-svc
     - dns-rc

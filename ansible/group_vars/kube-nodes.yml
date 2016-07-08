@@ -4,3 +4,5 @@ kube_certs_dir: /etc/kubernetes/certs
 kube_manifests_dir: /etc/kubernetes/manifests
 kube_addons_dir: /etc/kubernetes/addons
 kube_admissionControls_dir: /etc/kubernetes/admission-controls
+kube_cluster_config: "{{ kube_certs_dir }}/cluster-kubeconfig"
+

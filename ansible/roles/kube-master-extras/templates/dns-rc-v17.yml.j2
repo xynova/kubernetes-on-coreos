@@ -73,7 +73,7 @@ spec:
           timeoutSeconds: 5
         args:
         # command = "/kube-dns"
-        - --domain=cluster.local.
+        - --domain={{ kube_cluster_domain }}.
         - --dns-port=10053
         ports:
         - containerPort: 10053
@@ -106,7 +106,7 @@ spec:
             cpu: 10m
             memory: 20Mi
         args:
-        - -cmd=nslookup kubernetes.default.svc.cluster.local 127.0.0.1 >/dev/null && nslookup kubernetes.default.svc.cluster.local 127.0.0.1:10053 >/dev/null
+        - -cmd=nslookup kubernetes.default.svc.{{ kube_cluster_domain }} 127.0.0.1 >/dev/null && nslookup kubernetes.default.svc.{{ kube_cluster_domain }} 127.0.0.1:10053 >/dev/null
         - -port=8080
         - -quiet
         ports:

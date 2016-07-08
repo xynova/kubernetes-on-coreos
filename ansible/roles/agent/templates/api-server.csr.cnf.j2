@@ -13,7 +13,7 @@ subjectAltName = @alt_names
 DNS.1 = kubernetes
 DNS.2 = kubernetes.default
 DNS.3 = kubernetes.default.svc
-DNS.4 = kubernetes.default.svc.cluster.local
+DNS.4 = kubernetes.default.svc.{{ kube_cluster_domain }}
 IP.1 = {{ kube_api_service_ip }} 
 {% for hostname in groups['kube-masters'] %}
 IP.{{ loop.index + 1 }} = {{ hostname | ipaddr }}

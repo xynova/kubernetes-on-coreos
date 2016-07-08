@@ -4,7 +4,7 @@
   set_fact:
     certs_dir: "{{ home_dir }}/cert-files"
     ca_key: "kube-ca-key.pem"
-    ca_cert: "kube-ca.pem"
+    ca_cert: "{{ kube_ca_cert | basename }}"
 
 - name: Ensure certs dir
   file: path={{ item }} state=directory  mode=0700
@@ -25,6 +25,7 @@
   with_items:
     - etcd
     - api-server
+    - system-account-user
   register: command_result 
  
 - name: Allow certs to be recreated when request configuration files change 
@@ -41,6 +42,7 @@
   with_items:
     - etcd
     - api-server 
+    - system-account-user
   args:
     chdir: "{{ certs_dir }}"
     creates: "{{ certs_dir }}/{{ item }}.tar"
@@ -52,5 +54,6 @@
     - "{{ ca_cert }}"
     - etcd.tar
     - api-server.tar
+    - system-account-user.tar
   changed_when: false
 

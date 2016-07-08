@@ -16,18 +16,24 @@ spec:
     - --healthz-bind-address=127.0.0.1
     - --healthz-port=10249
     - --hostname-override={{ machine_ip }}
-    - --master={{ master_endpoints }}
+    - --kubeconfig={{ kube_cluster_config }}
     - --proxy-mode=iptables
     securityContext:
       privileged: true
     volumeMounts:
-    - mountPath: /etc/ssl/certs
+    - mountPath: {{ kube_ca_cert | dirname }}
       name: ssl-certs-host
+      readOnly: true
+    - mountPath: {{ kube_certs_dir }}
+      name: kube-certs-host
       readOnly: true
   volumes:
   - hostPath:
-      path: /usr/share/ca-certificates
+      path: {{ kube_ca_cert | dirname }}
     name: ssl-certs-host
+  - hostPath:
+      path: {{ kube_certs_dir }}
+    name: kube-certs-host
 
 
 
