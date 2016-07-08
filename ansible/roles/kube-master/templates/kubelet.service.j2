@@ -6,16 +6,19 @@ After=flanneld.service
 Requires=flanneld.service
 
 [Service]
-ExecStartPre=/usr/bin/mkdir -p /etc/kubernetes/manifests
+ExecStartPre=/usr/bin/mkdir -p {{ kube_manifests_dir }}
+
+# NOTES:
+# --api-servers is required even if --kubeconfig is defined
 
 ExecStart=/opt/bin/kubelet \
   --address=0.0.0.0 \
   --allow-privileged=true \
-  --api-servers=http://127.0.0.1:8080 \
+  --api-servers={{ master_endpoints }} \
   --cadvisor-port=4194 \
   --cluster-dns={{ kube_dns_service_ip }} \
   --cluster-domain={{ kube_cluster_domain }} \
-  --config=/etc/kubernetes/manifests \
+  --config={{ kube_manifests_dir }} \
   --file-check-frequency=20s \
   --healthz-bind-address=127.0.0.1 \
   --healthz-port=10248 \
@@ -23,6 +26,7 @@ ExecStart=/opt/bin/kubelet \
   --http-check-frequency=20s \
   --image-gc-high-threshold=90 \
   --image-gc-low-threshold=80 \
+  --kubeconfig={{ kube_cluster_config }} \
   --low-diskspace-threshold-mb=256 \
   --minimum-container-ttl-duration=1m0s \
   --minimum-image-ttl-duration=2m0s \

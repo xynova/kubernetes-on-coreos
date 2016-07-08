@@ -16,10 +16,10 @@ spec:
         cpu: 5m
         memory: 50Mi
     volumeMounts:
-    - mountPath: /etc/kubernetes/
-      name: addons
+    - mountPath: {{ kube_addons_dir }}
+      name: kube-addons-host
       readOnly: true
   volumes:
   - hostPath:
-      path: /etc/kubernetes/
-    name: addons
+      path: {{ kube_addons_dir }}
+    name: kube-addons-host

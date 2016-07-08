@@ -13,12 +13,12 @@ spec:
     - /hyperkube
     - controller-manager
     - --address=0.0.0.0
-    - --cluster-name="kubernetes"
+    - --cluster-name=kubernetes
+    - --kubeconfig={{ kube_cluster_config }}
     - --leader-elect=true
-    - --master={{ master_endpoints }}            #http://127.0.0.1:8080     # Master is local server
     - --port=10252
-    - --root-ca-file={{ kube_ca_cert }}
-    #- --service-account-private-key-file={{ apiServer_tls_key }}
+    - --root-ca-file={{ kube_ca_cert }}                                # will be included in service account's token secret
+    #- --service-account-private-key-file={{ apiServer_tls_key }}      # filename containing a  key used to sign service account tokens
     livenessProbe:
       httpGet:
         host: 127.0.0.1

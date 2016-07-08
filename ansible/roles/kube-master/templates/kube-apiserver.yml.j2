@@ -26,11 +26,15 @@ spec:
     - --etcd-quorum-read=false
     - --etcd-servers={{ etcd_endpoints }}
     - --insecure-bind-address=127.0.0.1
-#    - --insecure-bind-address=0.0.0.0
     - --insecure-port=8080
-    - --kubernetes-service-node-port=0
+        #--kubelet-certificate-authority="": Path to a cert. file for the certificate authority.
+        #--kubelet-client-certificate="": Path to a client cert file for TLS.
+        #--kubelet-client-key="": Path to a client key file for TLS.
+        #--kubelet-https[=true]: Use https for kubelet connections
+        #--kubelet-timeout=5s: Timeout for kubelet operations
+        #--kubernetes-service-node-port=0: If non-zero, the Kubernetes master service (which apiserver creates/maintains) will be of type NodePort, using this as the value of the port. If zero, the Kubernetes master service will be of type ClusterIP.
     - --secure-port=443   
-    - --service-account-key-file={{ apiServer_tls_key }}
+        #- --service-account-key-file={{ apiServer_tls_key }}
     - --service-account-lookup=false
     - --service-cluster-ip-range={{ kube_services_network_block }}
     - --tls-cert-file={{ apiServer_tls_cert }}
@@ -57,6 +61,5 @@ spec:
   - hostPath:
       path: {{ kube_ca_cert | dirname }}
     name: ssl-certs-host
-
 
 

@@ -94,10 +94,20 @@ spec:
           # only setup the /readiness HTTP server once that's available.
           initialDelaySeconds: 30
           timeoutSeconds: 5
+        volumeMounts:
+        - mountPath: /var/etcd/data
+          name: etcd-storage
+          readOnly: true
+        - mountPath: {{ kube_certs_dir }}
+          name: ssl-certs-kubernetes
+          readOnly: true
+        - mountPath: {{ kube_ca_cert | dirname }}
+          name: ssl-certs-host
+          readOnly: true
         args:
         # command = "/kube2sky"
         - --domain={{ kube_cluster_domain }}
-        - --kube-master-url=http://172.17.4.101:8080
+        - --kubecfg-file={{ kube_cluster_config }}
       - name: skydns
         image: gcr.io/google_containers/skydns-amd64:1.0
         resources:
@@ -142,4 +152,10 @@ spec:
       volumes:
       - name: etcd-storage
         emptyDir: {}
+      - hostPath:
+          path: {{ kube_certs_dir }}
+        name: ssl-certs-kubernetes
+      - hostPath:
+          path: {{ kube_ca_cert | dirname }}
+        name: ssl-certs-host
       dnsPolicy: Default  # Don't use cluster DNS.

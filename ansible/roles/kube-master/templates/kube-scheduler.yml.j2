@@ -13,8 +13,8 @@ spec:
     - /hyperkube
     - scheduler
     - --address=0.0.0.0
+    - --kubeconfig={{ kube_cluster_config }}
     - --leader-elect=true
-    - --master=http://127.0.0.1:8080        # Master is local machine
     - --port=10251
     - --scheduler-name=default-scheduler
     livenessProbe:
@@ -24,3 +24,18 @@ spec:
         port: 10251
       initialDelaySeconds: 15
       timeoutSeconds: 1
+    volumeMounts:
+    - mountPath: {{ kube_certs_dir }}
+      name: ssl-certs-kubernetes
+      readOnly: true
+    - mountPath: {{ kube_ca_cert | dirname }}
+      name: ssl-certs-host
+      readOnly: true
+  volumes:
+  - hostPath:
+      path: {{ kube_certs_dir }}
+    name: ssl-certs-kubernetes
+  - hostPath:
+      path: {{ kube_ca_cert | dirname }}
+    name: ssl-certs-host
+
