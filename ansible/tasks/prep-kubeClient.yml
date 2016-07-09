@@ -1,0 +1,11 @@
+---
+
+- name: Move kubectl from {{ work_dir }} into {{ opt_bin_dir }}
+  shell: mv -f {{ work_dir }}/{{ item }} {{ opt_bin_dir }} 
+  args:
+    creates: "{{ opt_bin_dir }}/{{ item }}"
+  with_items: 
+    - kubectl
+
+
+

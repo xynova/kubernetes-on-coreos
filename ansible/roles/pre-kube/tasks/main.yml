@@ -27,5 +27,6 @@
   become_method: sudo
 
 
-- name: INCLUDE Prepare System Account Kubeconfig
+- name: INCLUDE Prepare system-account Kubeconfig
   include: prep-system-kubeconfig.yml
+

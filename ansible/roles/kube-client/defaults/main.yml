@@ -1,3 +1,0 @@
----
-
-home_kubeconfig_dir: "{{ home_dir}}/.kube"

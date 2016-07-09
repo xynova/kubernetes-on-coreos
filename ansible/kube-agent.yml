@@ -3,8 +3,7 @@
 - hosts: all
   gather_facts: false
   tasks:
-    - name: Disable Locksmithd service
-      raw: systemctl disable locksmithd && systemctl stop locksmithd
+    - include: tasks/disable-automatic-updates.yml
   become: true
   become_method: sudo
   tags: init
@@ -14,7 +13,10 @@
   roles: 
     - pre-any
     - agent
-    - kube-client
+  post_tasks:
+    - include: tasks/prep-admin-kubeconfig.yml
+    - include: tasks/prep-kubeClient.yml
+    - include: tasks/prep-workCerts.yml
   tags: agent
 
 

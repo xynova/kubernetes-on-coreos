@@ -3,3 +3,4 @@
 coreos_docker_flannel_socket: unix:///var/run/early-docker.sock
 
 docker_cache_registry_url: "{{ docker_cache_registry.remoteHost }}:{{ docker_cache_registry.port }}"
+

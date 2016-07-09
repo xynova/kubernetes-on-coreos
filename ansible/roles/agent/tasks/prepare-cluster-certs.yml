@@ -17,6 +17,7 @@
   with_items:
     - "{{ certs_dir }}"
     - "{{ work_dir }}/certs"
+  changed_when: false
 
 - name: Create cluster CA
   shell: |
@@ -47,7 +48,7 @@
     - "{{ cluster_certs }}"
   args:
     chdir: "{{ certs_dir }}"
-    creates: "{{ certs_dir }}/{{ item }}.tar"
+    creates: "{{ item.cn }}.tar"
 
 - name: Copy cert files to {{ work_dir }}
   copy: >

@@ -12,5 +12,7 @@
     with_items:
       - rkt-gc.service
       - rkt-gc.timer
+    changed_when: false
+
   become: true
   become_method: sudo

@@ -14,7 +14,6 @@
     systemctl disable locksmithd && systemctl stop locksmithd
   become: true
   become_method: sudo
-  when: disableUpdates | default(false)
 
 - name: INCLUDE Prepare bin and work directories
   include: prepare-directories.yml
