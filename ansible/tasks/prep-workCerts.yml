@@ -20,6 +20,7 @@
   with_items:
     - api-server.tar
     - "{{ kube_ca_cert | basename }}"
+    - system-account-user.tar
   when: "'etcd' in group_names"
   changed_when: false
 

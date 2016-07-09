@@ -1,0 +1,4 @@
+---
+
+- name: Delete {{ work_dir }} directory
+  file: path={{ work_dir }} state=absent

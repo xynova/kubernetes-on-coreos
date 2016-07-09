@@ -50,4 +50,12 @@
   strategy: free
   tags: kube-workers
 
+- hosts: [ etcd, kube-masters, kube-workers ]
+  gather_facts: false
+  tasks:
+    - include: tasks/cleanup-deployment-artifacts.yml
+  strategy: free
+  tags: always
+
+
 
