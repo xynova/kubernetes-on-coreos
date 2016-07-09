@@ -3,7 +3,7 @@
 - block:
   - name: Move kube-ca to /etc/ssl/certs and reload certs
     shell: >
-      mv {{ work_certs_dir }}/{{ kube_ca_cert | basename }} {{ kube_ca_cert }} 
+      cp {{ work_certs_dir }}/{{ kube_ca_cert | basename }} {{ kube_ca_cert }} 
       && update-ca-certificates
     args:
       creates: "{{ kube_ca_cert }}"

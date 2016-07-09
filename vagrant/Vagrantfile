@@ -7,7 +7,7 @@ $master_count = 1
 $master_vm_memory = 1000
 $worker_count = 1
 $worker_vm_memory = 1000
-$etcd_count = 3
+$etcd_count = 1
 $etcd_vm_memory = 600
 $agent_vm_memory = 600
 
