@@ -9,4 +9,8 @@
   file: path={{ work_dir }}/{{ item }} state=file mode=a+x
   with_items:
     - "{{ kube_binaries_download_filenames }}"
-  
+      
+- name: Download RKT flannel.aci
+  raw:  wget  --continue  --output-document={{ work_dir }}/{{ rtk_flannelAci_filename }} {{ rtk_flannelAci_download_url }}   
+
+

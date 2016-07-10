@@ -38,14 +38,6 @@
 
 #-------------------------------------------
 
-    #- name: Pull CoreOS flannel image
-    #  shell: >
-    #    docker --host {{ coreos_docker_flannel_socket }}  images | grep '{{ docker_cache_registry_url }}/{{ item.name }} *{{ item.tag }}' > /dev/null 
-    #    || docker --host {{ coreos_docker_flannel_socket }} pull {{ docker_cache_registry_url }}/{{ item.name}}:{{ item.tag }}
-    #  with_items:
-    #    - "{{ docker_flannel_images }}"
-    #  register: command_result
-    #  changed_when: command_result.stdout_lines | length > 0
 
 - name: Pull Kubernetes Master docker images
   shell: >

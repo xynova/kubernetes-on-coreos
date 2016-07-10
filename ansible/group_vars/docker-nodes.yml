@@ -6,9 +6,6 @@ docker_cache_registry:
   localHost: localhost
   remoteHost: "{{ groups['agent'] | first }}"
 
-docker_flannel_images:
-  - { name: "flannel", tag: "0.5.5", registry: "quay.io/coreos" }
-
 
 google_registry: gcr.io/google_containers
 
@@ -37,4 +34,8 @@ kube_binaries_download_url_base: https://storage.googleapis.com/kubernetes-relea
 kube_binaries_download_filenames:
   - kubelet
   - kubectl
+
+rtk_flannelAci_download_url: https://quay.io/c1/aci/quay.io/coreos/flannel/0.5.5/aci/linux/amd64/
+rtk_flannelAci_filename: flannel.aci
+
 
