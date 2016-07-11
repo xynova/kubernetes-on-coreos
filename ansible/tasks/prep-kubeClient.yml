@@ -1,7 +1,7 @@
 ---
 
 - name: Move kubectl from {{ work_dir }} into {{ opt_bin_dir }}
-  copy: remote_src=true src={{ work_dir }}/{{ item }} dest={{ opt_bin_dir }}/{{ item }}
+  copy: remote_src=true src={{ work_dir }}/{{ item }} dest={{ opt_bin_dir }}/{{ item }} mode=0555
   with_items:
     - kubectl
 
