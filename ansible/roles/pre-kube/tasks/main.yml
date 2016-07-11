@@ -1,8 +1,10 @@
 ---
 
-- name: INCLUDE Pull cached docker images for kube-node
-  include: pull-cached-images.yml
+- name: INCLUDE Import cached docker images for kube-node
+  include: import-docker-cached-images.yml
 
+- name: INCLUDE Import cached rtk images for flannel
+  include: import-rkt-cached-images.yml
 
 - name: Move pre-copied kube-binaries from {{ work_dir }} into {{ opt_bin_dir }}
   shell: >

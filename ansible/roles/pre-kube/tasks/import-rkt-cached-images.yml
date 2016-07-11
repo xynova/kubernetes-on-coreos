@@ -1,0 +1,6 @@
+---
+
+- name: Import flannel rkt image
+  command: rkt fetch --insecure-options=image file://{{ work_dir}}/{{ rtk_flannelAci_filename }}
+
+
