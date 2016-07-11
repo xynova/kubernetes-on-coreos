@@ -1,4 +1,11 @@
 #! /bin/bash
+set -e
+
+RKT_IMAGE=node.local/ansible:latest
+BASEDIR=dirname $(readlink -f $0)
+
+rkt image list | grep -q $RKT_IMAGE || (echo "The ansible container does not exist. Build it with the script @ $BASEDIR/prepare-ansible.sh" && exit 1)
+
 
 sudo rkt run \
   --insecure-options=image \
@@ -10,5 +17,5 @@ sudo rkt run \
   --mount volume=workdir,target=/root/workdir \
   --net=host \
   --interactive=true \
-  node.local/ansible:latest --exec '/bin/bash' -- -c 'cd /root/workdir && ansible-playbook '$@  
+  $RKT_IMAGE --exec '/bin/bash' -- -c 'cd /root/workdir && ansible-playbook '$@  
 
