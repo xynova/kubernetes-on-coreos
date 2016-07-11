@@ -7,15 +7,9 @@
   include: import-rkt-cached-images.yml
 
 - name: Move pre-copied kube-binaries from {{ work_dir }} into {{ opt_bin_dir }}
-  shell: >
-    ls {{ item }} > /dev/null && mv {{ item }} {{ opt_bin_dir }} 
-  args:
-    chdir: "{{ work_dir }}"
+  copy: remote_src=true src={{ work_dir }}/{{ item }} dest={{ opt_bin_dir }}/{{ item }}
   with_items: 
     - "{{ kube_binaries_download_filenames }}"
-  register: command_result
-  failed_when: false
-  changed_when: command_result | succeeded
 
 
 - name: Ensure kube-node configuration directories
