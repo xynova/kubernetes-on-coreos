@@ -10,5 +10,5 @@ sudo rkt run \
   --mount volume=workdir,target=/root/workdir \
   --net=host \
   --interactive=true \
-  docker://williamyeh/ansible:alpine3 --exec 'sh' -- -c 'cd /root/workdir && ansible-playbook '$@  
+  node.local/ansible:latest --exec '/bin/bash' -- -c 'cd /root/workdir && ansible-playbook '$@  
 
