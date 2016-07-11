@@ -13,10 +13,8 @@ OUTPUT_ACI=$BUILD_DIR/node.local-ansible-latest.aci
 
 cat << EOF | docker build -t $DOCKER_IMAGE -
 FROM docker.io/williamyeh/ansible:debian8
-
-RUN apt-get update && apt-get install -y python-dev build-essential python-pip
+RUN curl https://bootstrap.pypa.io/get-pip.py > /tmp/get-pip.py && python /tmp/get-pip.py
 RUN pip install netaddr
-
 EOF
 
 
