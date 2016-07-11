@@ -2,11 +2,12 @@
 set -e
 
 RKT_IMAGE=node.local/ansible:latest
-BASEDIR=dirname $(readlink -f $0)
+BASEDIR=$(dirname $(readlink -f $0))
 
-rkt image list | grep -q $RKT_IMAGE || (echo "The ansible container does not exist. Build it with the script @ $BASEDIR/prepare-ansible.sh" && exit 1)
+# Check if ansible rkt image is available
+rkt image list | grep -q $RKT_IMAGE || (echo "The ansible container does not exist. Build by executing the 'prepare-ansible' command first" && exit 1)
 
-
+# Run rkt ansible image
 sudo rkt run \
   --insecure-options=image \
   --volume ssh-keys,kind=host,source=$HOME/.ssh,readOnly=true \
