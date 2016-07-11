@@ -48,7 +48,7 @@ Vagrant.configure("2") do |config|
         cd /tmp && rm -Rf kubernetes-on-coreos
         git clone --depth 1 https://github.com/xynova/kubernetes-on-coreos.git && chown 500:500 -R kubernetes-on-coreos
         ln -sf --no-target-directory /tmp/kubernetes-on-coreos/ansible/ /home/core/ansible
-        mkdir -p /opt/bin && ln -sf --no-target-directory /tmp/kubernetes-on-coreos/scripts/run-playbook.sh /opt/bin/run-playbook
+        /tmp/kubernetes-on-coreos/scripts/prepare-commands.sh
         chown root:core -R /opt/bin
     EOF
 
@@ -84,7 +84,7 @@ def setupBoxDefaults(config)
   config.ssh.insert_key = false
 
   config.vm.box = "coreos-%s" % $update_channel
-  config.vm.box_version = ">= 1081.2.0"
+  config.vm.box_version = "= 1097.0.0"
   config.vm.box_url = "http://%s.release.core-os.net/amd64-usr/current/coreos_production_vagrant.json" % $update_channel
 
   config.vm.provider :virtualbox do |vb|
