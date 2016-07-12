@@ -1,0 +1,39 @@
+---
+
+- name: Pull required docker images
+  shell: >
+    docker images | grep '{{ item.registry}}/{{ item.name }} *{{ item.tag }}' > /dev/null 
+    || docker pull {{ item.registry }}/{{ item.name}}:{{ item.tag }}
+  with_items:
+    - "{{ docker_kube_hyperkube_image }}"
+    - "{{ docker_kube_dns_images }}"
+    - "{{ docker_kube_ui_images }}"
+    - "{{ docker_kube_heapster_images }}"
+  register: command_result
+  changed_when: command_result.stdout_lines | length > 0
+
+- name: Ensure certs dir
+  file: path={{ item }} state=directory
+  with_items:
+    - "{{ work_images_dir }}"
+  changed_when: false
+
+- name: Save images to disk
+  shell: >
+    docker save -o {{ work_images_dir }}/{{ item.name }}-{{ item.tag }} {{ item.registry }}/{{ item.name }}:{{ item.tag }} 
+  with_items:
+    - "{{ docker_kube_hyperkube_image }}"
+    - "{{ docker_kube_dns_images }}"
+    - "{{ docker_kube_ui_images }}"
+    - "{{ docker_kube_heapster_images }}"
+
+
+
+
+
+
+
+
+  
+
+

@@ -7,10 +7,10 @@
   include: import-rkt-cached-images.yml
 
 - name: Copy pre-copied kube-binaries from {{ work_dir }} into {{ opt_bin_dir }}
-  command: cp -f {{ work_dir }}/{{ item }} {{ opt_bin_dir }}/{{ item }}
+  shell: cp -f {{ work_dir }}/{{ item }} {{ opt_bin_dir }}/{{ item }}
   with_items: 
     - "{{ kube_binaries_download_filenames }}"
-  chaged_when: false
+  changed_when: false
 
 
 - name: Ensure kube-node configuration directories
