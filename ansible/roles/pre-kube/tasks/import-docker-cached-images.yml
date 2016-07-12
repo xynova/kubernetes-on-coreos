@@ -47,7 +47,7 @@
     - "{{ docker_kube_hyperkube_image }}"
   register: command_result
   changed_when: command_result.stdout_lines | length > 0
-  when: kube_node_type == "master"
+  when: "'kube-masters' in group_names"
   
 - name: Pull Kubernetes Worker docker images
   shell: >
@@ -60,7 +60,8 @@
     - "{{ docker_kube_heapster_images }}"
   register: command_result
   changed_when: command_result.stdout_lines | length > 0
-  when: kube_node_type == "worker"
+  when: "'kube-addon-workers' in group_names"
+
 
 #-------------------------------------------
 

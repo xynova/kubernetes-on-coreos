@@ -1,6 +1,6 @@
 ---
 
-- hosts: [ etcd, kube-masters, kube-workers ]
+- hosts: [ etcd, kube-masters, kube-addon-workers ]
   gather_facts: false
   pre_tasks:
     - include: tasks/transfer-workfiles.yml
@@ -8,7 +8,7 @@
     - pre-any
   post_tasks:
     - include: tasks/prep-workCerts.yml
-  strategy: free
+  #strategy: free
   tags: always
 
 - hosts: etcd
@@ -21,7 +21,7 @@
 - hosts: kube-masters
   gather_facts: false
   roles:
-    - { role: pre-kube, kube_node_type: master }
+    - pre-kube
     - flannel
     - kube-master
   post_tasks:
@@ -38,19 +38,19 @@
     - kube-master-extras
   tags: kube-master-extras
 
-- hosts: kube-workers
+- hosts: kube-addon-workers
   gather_facts: false
   roles:
-    - { role: pre-kube, kube_node_type: worker }
+    - pre-kube
     - flannel
     - kube-worker
   post_tasks:
     - include: tasks/prep-admin-kubeconfig.yml
     - include: tasks/prep-kubeClient.yml
   strategy: free
-  tags: kube-workers
+  tags: kube-addon-workers
 
-- hosts: [ etcd, kube-masters, kube-workers ]
+- hosts: [ etcd, kube-masters, kube-addon-workers ]
   gather_facts: false
   tasks:
     - include: tasks/cleanup-deployment-artifacts.yml

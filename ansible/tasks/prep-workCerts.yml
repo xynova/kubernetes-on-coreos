@@ -37,6 +37,6 @@
   with_items:
     - api-server.tar
     - "{{ kube_ca_cert | basename }}"
-  when: "'kube-workers' in group_names"
+  when: "'kube-addon-workers' in group_names"
   changed_when: false
 

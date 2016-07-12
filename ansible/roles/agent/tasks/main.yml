@@ -1,7 +1,7 @@
 ---
 
-- name: INCLUDE Prepare docker bootstrapping cache registry
-  include: prepare-cache-registry.yml
+#- name: INCLUDE Prepare docker bootstrapping cache registry
+#  include: prepare-cache-registry.yml
 
 - name: INCLUDE Download docker images
   include: download-docker-images.yml

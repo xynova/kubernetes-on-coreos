@@ -15,8 +15,8 @@
     raw: >
       tar -xjf {{ work_dir }}/{{ pypy_download_filename }} -C /tmp
 
-  - name: Move pypy source to python bootstrap directory
-    raw: mv -n /tmp/{{ pypy_download_dir }} {{ opt_bin_dir }}/pypy
+  - name: Copy pypy source to python bootstrap directory
+    raw: cp -n /tmp/{{ pypy_download_dir }} {{ opt_bin_dir }}/pypy
 
   - name: Make pypy lib directory and link ncurses .so
     raw: mkdir -p {{ opt_bin_dir }}/pypy/lib && ln -snf /lib64/libncurses.so.5.9 {{ opt_bin_dir }}/pypy/lib/libtinfo.so.5

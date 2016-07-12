@@ -22,6 +22,7 @@
     || docker pull {{ item.registry }}/{{ item.name}}:{{ item.tag }}
   with_items:
     - "{{ docker_kube_hyperkube_image }}"
+    - "{{ docker_kube_addonManager_image }}"
     - "{{ docker_kube_dns_images }}"
     - "{{ docker_kube_ui_images }}"
     - "{{ docker_kube_heapster_images }}"
@@ -34,6 +35,7 @@
     && docker push localhost:5000/{{ item.name }}:{{ item.tag }}
   with_items:
     - "{{ docker_kube_hyperkube_image }}"
+    - "{{ docker_kube_addonManager_image }}"
     - "{{ docker_kube_dns_images }}"
     - "{{ docker_kube_ui_images }}"
     - "{{ docker_kube_heapster_images }}"
