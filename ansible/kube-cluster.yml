@@ -19,20 +19,25 @@
   tags: etcd
 
 
-- hosts: kube-masters
+- hosts: kube-nodes
   gather_facts: false
   pre_tasks:
     - include: tasks/transfer-imageFiles.yml
   roles:
     - pre-kube
     - flannel
-    - kube-master
   post_tasks:
     - include: tasks/prep-admin-kubeconfig.yml
     - include: tasks/prep-kubeClient.yml
   strategy: free
   tags: kube-masters
 
+- hosts: kube-masters
+  gather_facts: false
+  roles:
+    - kube-master
+  strategy: free
+  tags: kube-masters
 
 - hosts: kube-masters
   gather_facts: false
@@ -41,20 +46,13 @@
     - kube-master-extras
   tags: kube-master-extras
 
-
 - hosts: kube-addon-workers
   gather_facts: false
-  pre_tasks:
-    - include: tasks/transfer-imageFiles.yml
   roles:
-    - pre-kube
-    - flannel
     - kube-worker
-  post_tasks:
-    - include: tasks/prep-admin-kubeconfig.yml
-    - include: tasks/prep-kubeClient.yml
   strategy: free
   tags: kube-addon-workers
+
 
 - hosts: [ etcd, kube-masters, kube-addon-workers ]
   gather_facts: false
