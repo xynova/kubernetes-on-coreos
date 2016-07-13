@@ -1,14 +1,5 @@
 ---
 
-- name: Copy {{ work_dir }} from agent
-  synchronize: 
-    src: "{{ work_dir }}"
-    dest: "{{ home_dir }}"
-    mode: push
-    compress: no
-    recursive: true
-  delegate_to: "{{ groups['agent'] | first }}"
-
 - name: Copy {{ work_images_dir }} from agent
   synchronize: 
     src: "{{ work_images_dir }}"

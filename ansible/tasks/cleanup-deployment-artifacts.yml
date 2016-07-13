@@ -1,4 +1,4 @@
 ---
 
-- name: Delete {{ work_dir }}/certs directory
-  file: path={{ work_dir }}/certs state=absent
+- name: Delete {{ work_certs_dir }} directory
+  file: path={{ work_certs_dir }} state=absent

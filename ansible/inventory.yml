@@ -13,11 +13,10 @@ ansible_python_interpreter = /opt/bin/python
 [kube-addon-workers]
 172.17.4.20[1:1]
 
-[docker-nodes:children]
+[kube-control-nodes:children]
 agent
 kube-masters
 kube-addon-workers
 
-[kube-nodes:children]
-kube-masters
-kube-addon-workers
+[docker-nodes:children]
+kube-control-nodes

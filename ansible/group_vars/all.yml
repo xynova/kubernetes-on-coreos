@@ -6,7 +6,7 @@
 # Directory where we copy and work with files
 home_dir: /home/core
 work_dir: "{{ home_dir }}/prep-files"
-work_certs_dir: "{{ work_dir }}/certs"
+work_certs_dir: "{{ home_dir }}/cert-files"
 work_images_dir: "{{ home_dir }}/image-files"
 
 # Directory where custom executables are run from in CoreOS

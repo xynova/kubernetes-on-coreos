@@ -14,9 +14,9 @@
     - pre-any
     - agent
   post_tasks:
+    - include: tasks/transfer-certFiles.yml
     - include: tasks/prep-admin-kubeconfig.yml
     - include: tasks/prep-kubeClient.yml
-    - include: tasks/prep-workCerts.yml
   tags: agent
 
 

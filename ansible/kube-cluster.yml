@@ -3,12 +3,12 @@
 - hosts: [ etcd, kube-masters, kube-addon-workers ]
   gather_facts: false
   pre_tasks:
-    - include: tasks/transfer-workfiles.yml
+    - include: tasks/transfer-prepFiles.yml
   roles:
     - pre-any
   post_tasks:
-    - include: tasks/prep-workCerts.yml
-  #strategy: free
+    - include: tasks/transfer-certFiles.yml
+  strategy: free
   tags: always
 
 - hosts: etcd
@@ -18,8 +18,11 @@
   strategy: free
   tags: etcd
 
+
 - hosts: kube-masters
   gather_facts: false
+  pre_tasks:
+    - include: tasks/transfer-imageFiles.yml
   roles:
     - pre-kube
     - flannel
@@ -38,8 +41,11 @@
     - kube-master-extras
   tags: kube-master-extras
 
+
 - hosts: kube-addon-workers
   gather_facts: false
+  pre_tasks:
+    - include: tasks/transfer-imageFiles.yml
   roles:
     - pre-kube
     - flannel
