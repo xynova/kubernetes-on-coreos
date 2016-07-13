@@ -21,8 +21,10 @@ In the "**agent**" session run the ansible `kube-agent.yml` and `kube-cluster.ym
 
 ```
 # Session: agent@/home/core
+$ prepare-ansible  # Builds an ansible rkt image
 $ cd ansible
-$ run-playbook kube-agent.yml kube-cluster.yml
+$ run-playbook kube-agent.yml 
+$ run-playbook kube-cluster.yml
 ```
 
 **Attention:** the `kube-agent.yml` playbook might take some time to execute depending on the internet connection speed.  Part of its behaviour is to download and cache all external images and files required to bootstrap the cluster (**~1.5GB**). 
@@ -32,6 +34,6 @@ The cluster will then be available from any machine through the `kubectl` tool.
 
 ```
 $ kubectl cluster-info
-Kubernetes master is running at http://172.17.4.101:8080
-KubeDNS is running at http://172.17.4.101:8080/api/v1/proxy/namespaces/kube-system/services/kube-dns
+Kubernetes master is running at https://172.17.4.101:443
+KubeDNS is running at https://172.17.4.101:443/api/v1/proxy/namespaces/kube-system/services/kube-dns
 ```
