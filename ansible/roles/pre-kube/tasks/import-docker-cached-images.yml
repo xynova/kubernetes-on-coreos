@@ -16,10 +16,8 @@
 - name: Load Kubernetes Worker docker images
   shell: >
     docker images | grep '{{ item.registry }}/{{ item.name }} *{{ item.tag }}' > /dev/null 
-    || (
-        ls  | grep -q {{ item.name }}-{{ item.tag }}
-        && docker load < {{ item.name }}-{{ item.tag }}
-      )
+    || (ls  | grep -q {{ item.name }}-{{ item.tag }} && docker load < {{ item.name }}-{{ item.tag }})
+    || exit 0
   args:
     chdir: "{{ work_images_dir }}"
   with_items:

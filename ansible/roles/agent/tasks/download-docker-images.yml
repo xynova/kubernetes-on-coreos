@@ -13,11 +13,8 @@
   register: command_result
   changed_when: command_result.stdout_lines | length > 0
 
-#- name: Ensure certs dir
-#  file: path={{ item }} state=directory
-#  with_items:
-#    - "{{ work_images_dir }}"
-#  changed_when: false
+- name: Ensure {{ work_images_dir }} dir
+  file: path={{ work_images_dir }} state=directory
 
 - name: Save images to disk
   shell: >

@@ -7,12 +7,19 @@
     mode: push 
     compress: no
     recursive: true 
-    rsync_opts:
-      - "--include='*/'"
-      - "--include='{{ kube_ca_cert | basename }}*'"
-      - "--exclude='*'"
+    rsync_opts: "--include='*/' --include='{{ kube_ca_cert | basename }}*' --exclude='*'"
   delegate_to: "{{ groups['agent'] | first }}"
-  when: "'docker-nodes' in group_names"
+
+- name: Copy etcd cert from agent
+  synchronize: 
+    src: "{{ work_certs_dir }}"
+    dest: "{{ home_dir }}"
+    mode: push 
+    compress: no
+    recursive: true 
+    rsync_opts: "--include='*/' --include='etcd.tar' --exclude='*'"
+  delegate_to: "{{ groups['agent'] | first }}"
+  when: "'etcd' in group_names"
 
 - name: Copy system-account cert from agent
   synchronize: 
@@ -21,10 +28,7 @@
     mode: push 
     compress: no
     recursive: true 
-    rsync_opts:
-      - "--include='*/'"
-      - "--include='system-account-user.tar'"
-      - "--exclude='*'"
+    rsync_opts: "--include='*/' --include='system-account-user.tar' --exclude='*'"
   delegate_to: "{{ groups['agent'] | first }}"
   when: "'kube-control-nodes' in group_names"
 
@@ -35,10 +39,7 @@
     mode: push 
     compress: no
     recursive: true 
-    rsync_opts:
-      - "--include='*/'"
-      - "--include='api-server.tar'"
-      - "--exclude='*'"
+    rsync_opts: "--include='*/' --include='api-server.tar' --exclude='*'"
   delegate_to: "{{ groups['agent'] | first }}"
   when: "'kube-masters' in group_names"
 
@@ -49,12 +50,10 @@
     mode: push 
     compress: no
     recursive: true 
-    rsync_opts:
-      - "--include='*/'"
-      - "--include='cluster-admin-user.tar'"
-      - "--exclude='*'"
+    rsync_opts: "--include='*/' --include='cluster-admin-user.tar' --exclude='*'"
   delegate_to: "{{ groups['agent'] | first }}"
   when: "'kube-control-nodes' in group_names"
+
 
 - block:
   - name: Move kube-ca to /etc/ssl/certs and reload certs
