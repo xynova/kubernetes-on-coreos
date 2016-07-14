@@ -1,7 +1,7 @@
 #! /bin/bash
 set -e
 
-CMD="ansible-playbook"
+CMD="ansible"
 whitespace="[[:space:]]"
 for i in "$@"
 do
@@ -13,11 +13,13 @@ do
   fi
 done
 
+
 RKT_IMAGE=node.local/ansible:latest
 BASEDIR=$(dirname $(readlink -f $0))
 
 # Check if ansible rkt image is available
 rkt image list | grep -q $RKT_IMAGE || (echo "The ansible container does not exist. Build by executing the 'prepare-ansible' command first" && exit 1)
+
 
 # Run rkt ansible image
 sudo rkt run \
@@ -31,3 +33,4 @@ sudo rkt run \
   --net=host \
   --interactive=true \
   $RKT_IMAGE --exec '/bin/bash' -- -c "cd /root/workdir && $CMD"
+
