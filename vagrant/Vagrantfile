@@ -52,7 +52,7 @@ Vagrant.configure("2") do |config|
         ln -sf --no-target-directory /tmp/kubernetes-on-coreos/ansible/ /home/core/ansible
         /tmp/kubernetes-on-coreos/scripts/prepare-commands.sh
         chown root:core -R /opt/bin
-        ln -sf /tmp/vagrant-inventory.yml /home/core/ansible/inventory.yml
+        cp -f /tmp/vagrant-inventory.yml /home/core/ansible/inventory.yml
     EOF
 
     # EXP=$(echo 172.17.4.10[1:1] | sed -e 's/[]\/$*.^|[]/\\&/g') && sed -e "s|$EXP|172.17.4.10[1:5]|" inventory.yml.bk
