@@ -3,6 +3,7 @@
 config.rb
 .ssh/
 ansible/inventory.yml
+vagrant/vagrant-inventory.yml
 .DS_Store
 files-ssl/
 
