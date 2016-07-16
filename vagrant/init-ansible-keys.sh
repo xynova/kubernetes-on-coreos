@@ -12,3 +12,6 @@ ls .ssh | grep -q id_rsa || ssh-keygen -b 2048 -t rsa -f .ssh/id_rsa -q -N ''
 
 # Enable ansible keys from vagrant host
 rm -Rf ../.ssh && ln -sf $(pwd)/.ssh ../.ssh 
+
+# Overwrite inventory for playbook runs from local host
+ln -sf $(pwd)/vagrant-inventory.yml ../ansible/inventory.yml
