@@ -5,7 +5,7 @@ Vagrant.require_version ">= 1.6.0"
 
 $update_channel = "alpha"
 $master_count = 1
-$master_vm_memory = 1000
+$master_vm_memory = 800
 $worker_count = 1
 $worker_vm_memory = 1000
 $etcd_count = 3

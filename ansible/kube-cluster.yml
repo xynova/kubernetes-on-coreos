@@ -30,7 +30,7 @@
     - include: tasks/prep-admin-kubeconfig.yml
     - include: tasks/prep-kubeClient.yml
   strategy: free
-  tags: kube-masters
+  tags: kube-nodes
 
 - hosts: kube-masters
   gather_facts: false

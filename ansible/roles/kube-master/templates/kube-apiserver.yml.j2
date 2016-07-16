@@ -15,13 +15,13 @@ spec:
     - --admission-control=AlwaysAdmit
     - --advertise-address={{ machine_ip }}
     - --allow-privileged=true
-    - --apiserver-count=1
+    - --apiserver-count={{ groups['kube-masters'] | length }}
     - --authorization-mode=AlwaysAllow
     - --bind-address=0.0.0.0    
     - --client-ca-file={{ kube_ca_cert }}
     - --etcd-cafile={{ kube_ca_cert }}
-#    - --etcd-certfile=""
-#    - --etcd-keyfile=""
+    - --etcd-certfile={{ kube_systemAccount_cert }}
+    - --etcd-keyfile={{ kube_systemAccount_key }}
 #    - --etcd-prefix=/registry
     - --etcd-quorum-read=false
     - --etcd-servers={{ etcd_endpoints }}

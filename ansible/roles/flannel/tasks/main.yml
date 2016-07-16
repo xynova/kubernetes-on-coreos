@@ -1,12 +1,13 @@
 ---
 
-- name: Create network key in Etcd
-  shell: >
-    /usr/bin/etcdctl --endpoints={{ etcd_endpoints }} 
-    set /coreos.com/network/config '{ "Network": "{{ flanel_network_block }}" , "Backend":{"Type":"{{ flannel_network_backend_type }}"} }'
-  delegate_to: "{{ groups['etcd'] | first }}"
 
 - block:
+  - name: Create network key in Etcd
+    shell: >
+      /usr/bin/etcdctl --cert-file={{ kube_systemAccount_cert }} --key-file={{ kube_systemAccount_key }}  --endpoints={{ etcd_endpoints }} 
+      set /coreos.com/network/config '{ "Network": "{{ flanel_network_block }}" , "Backend":{"Type":"{{ flannel_network_backend_type }}"} }'
+    run_once: true
+
   - name: Create flannel and docker service extension directories
     file: path={{ item }} state=directory recurse=true
     with_items:
@@ -15,8 +16,12 @@
       - /etc/systemd/system/docker.service.d
       - /etc/ssl/etcd
 
-  - name: Create kube-ca link into /etc/ssl/etcd directory mounted by flanneld rtk service
-    copy: remote_src=true src={{ kube_ca_cert }} dest=/etc/ssl/etcd/{{ kube_ca_cert | basename }} 
+  - name: Copy kube-ca and etcd client certs into /etc/ssl/etcd directory mounted by flanneld rtk service
+    shell: cp -f {{ item }} /etc/ssl/etcd/
+    with_items:
+      - "{{ kube_ca_cert }}"
+      - "{{ kube_systemAccount_cert }}"
+      - "{{ kube_systemAccount_key }}"
 
   - name: Create flannel service extension files
     template: src={{ item.src }} dest={{ item.dest }}
