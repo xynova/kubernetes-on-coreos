@@ -4,7 +4,7 @@ The purpose of this project is to have a boostrapable version of Kubernetes that
 ## Vagrant
 
 
-** On your machine : **
+#### On your machine :
 
 - Move into the vagrant directory.
 - Execute the `init-ansible-keys.sh` if you are on a windows host.
