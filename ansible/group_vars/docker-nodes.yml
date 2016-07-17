@@ -17,12 +17,9 @@ docker_kube_ui_images:
   - { name: "kubernetes-dashboard-amd64", tag: "v1.0.1" , registry: "{{ google_registry }}" }
 
 docker_kube_dns_images:
-#  - { name: "kubedns-amd64", tag: "1.6", registry: "{{ google_registry }}" }
-#  - { name: "dnsmasq", tag: "1.1", registry: "{{ google_registry }}" }
-#  - { name: "exechealthz-amd64", tag: "1.0", registry: "{{ google_registry }}" }
-  - { name: "etcd-amd64", tag: "2.2.5", registry: "{{ google_registry }}"}
-  - { name: "kube2sky-amd64", tag: "1.15", registry: "{{ google_registry }}" }
-  - { name: "skydns-amd64", tag: "1.0", registry: "{{ google_registry }}" }
+  - { name: "kubedns-amd64", tag: "1.6", registry: "{{ google_registry }}" }
+  - { name: "kube-dnsmasq-amd64", tag: "1.3", registry: "{{ google_registry }}" }
+  - { name: "exechealthz-amd64", tag: "1.0", registry: "{{ google_registry }}" }
 
 docker_kube_heapster_images:
   - { name: "heapster", tag: "v1.1.0-beta2", registry: "{{ google_registry }}" }
