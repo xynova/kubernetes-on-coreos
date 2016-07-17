@@ -1,34 +1,49 @@
-# kubernetes-on-coreos
-
+# Kubernetes v1.3 on CoreOS
+The purpose of this project is to have a boostrapable version of Kubernetes that is easy to understand and explain to others. It has been configured to support high etcd and master nodes on availabiltiy mode.
 
 ## Vagrant
 
 
-On your machine
+** On your machine : **
 
 - Move into the vagrant directory.
 - Execute the `init-ansible-keys.sh` if you are on a windows host.
 - Start the CoreOS virtual machines
 
 ```
-$ cd vagrant
-$ init-ansible-keys.sh # if you are on windows
-$ vagrant up && vagrant ssh agent
+cd vagrant
+```
+If you are on a windows host, run the following to create Ansible ssh keys
+```
+init-ansible-keys.sh      
+```
+Boot up the machines
+```
+vagrant up && vagrant ssh agent
 ```
 
-In the "**agent**" session run the ansible `kube-agent.yml` and `kube-cluster.yml` playbooks. 
+**On the `core @ agent` session :**
 
+- Build the ansible RKT image.
+- Move into the ansible directory.
+- Run the following boostrapping playbooks.
 
 ```
-#> Session: agent@/home/core
-$ prepare-ansible  #> Builds an ansible rkt image
-$ cd ansible
-$ run-playbook kube-agent.yml 
-$ run-playbook kube-cluster.yml
+prepare-ansible
 ```
-
+```
+cd ansible
+```
 **Attention:** the `kube-agent.yml` playbook might take some time to execute depending on the internet connection speed.  Part of its behaviour is to download and cache all external images and files required to bootstrap the cluster (**~1.5GB**). 
 This technique allows recreating the cluster at any point in time with minimal network bandwidth requirements provided the **agent** host's state is preserved. In other words, don't `vagrant destroy` it.
+```
+run-playbook kube-agent.yml 
+```
+```
+run-playbook kube-cluster.yml
+```
+
+
 
 The cluster will then be available from any machine through the `kubectl` tool.
 
@@ -53,9 +68,7 @@ image: using image from local store for image name coreos.com/rkt/stage1-coreos:
 image: using image from local store for image name node.local/ansible:latest
 
 PLAY [all] *************************************************************** 
-...
 ```
-
 ```
 #> Session: agent@/home/core
 $ cd /home/core/ansible  #> To leverage the ansible.cfg within the directory
