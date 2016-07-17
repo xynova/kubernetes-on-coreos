@@ -41,7 +41,6 @@
 
 - hosts: kube-masters
   gather_facts: false
-  run_once: true
   roles:
     - kube-master-extras
   tags: kube-master-extras
