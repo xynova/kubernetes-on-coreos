@@ -39,18 +39,18 @@
   strategy: free
   tags: kube-masters
 
-- hosts: kube-masters
-  gather_facts: false
-  roles:
-    - kube-master-extras
-  tags: kube-master-extras
-
 - hosts: kube-addon-workers
   gather_facts: false
   roles:
     - kube-worker
   strategy: free
   tags: kube-addon-workers
+
+- hosts: kube-masters
+  gather_facts: false
+  roles:
+    - kube-master-extras
+  tags: kube-master-extras
 
 
 - hosts: [ etcd, kube-masters, kube-addon-workers ]
