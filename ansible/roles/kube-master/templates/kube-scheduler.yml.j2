@@ -16,6 +16,7 @@ spec:
     - --kubeconfig={{ kube_cluster_config }}
     - --leader-elect=true
     - --port=10251
+    #- --policy-config-file=
     - --scheduler-name=default-scheduler
     livenessProbe:
       httpGet:

@@ -10,7 +10,7 @@ Environment="ETCD_LISTEN_PEER_URLS={{ etcd_endpoint_scheme }}://{{ machine_ip }}
 Environment="ETCD_TRUSTED_CA_FILE={{ kube_ca_cert }}"
 Environment="ETCD_CERT_FILE={{ etcd_tls_cert }}"
 Environment="ETCD_KEY_FILE={{ etcd_tls_key }}"
-Environment="ETCD_CLIENT_CERT_AUTH=true"
+# Environment="ETCD_CLIENT_CERT_AUTH=true" # https://github.com/kubernetes/kubernetes/issues/27343
 
 Environment="ETCD_PEER_TRUSTED_CA_FILE={{ kube_ca_cert }}"
 Environment="ETCD_PEER_CERT_FILE={{ etcd_tls_cert }}"

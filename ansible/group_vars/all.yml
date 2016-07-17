@@ -41,7 +41,8 @@ etcd_endpoint_scheme: https
 etcd_endpoints: "{% for hostname in groups['etcd'] %}{{ etcd_endpoint_scheme }}://{{ hostname }}:2379{% if not loop.last %},{% endif %}{% endfor %}"
 
 master_endpoint_scheme: https
-master_endpoints: "{% for hostname in groups['kube-masters'] %}{{ master_endpoint_scheme }}://{{ hostname }}:443{% if not loop.last %},{% endif %}{% endfor %}"
+master_endpoint_port: 443
+master_endpoints: "{% for hostname in groups['kube-masters'] %}{{ master_endpoint_scheme }}://{{ hostname }}:{{ master_endpoint_port }}{% if not loop.last %},{% endif %}{% endfor %}"
 
 flanel_network_block: 10.1.0.0/16
 flannel_network_backend_type: vxlan
