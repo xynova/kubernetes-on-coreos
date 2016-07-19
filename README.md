@@ -1,5 +1,5 @@
 # Kubernetes v1.3 on CoreOS
-The purpose of this project is to have a boostrapable version of Kubernetes that is easy to understand and explain to others. It has been configured to support high etcd and master nodes on availabiltiy mode.
+The purpose of this project is to have a boostrapable version of Kubernetes that is easy to understand and explain to others. It has been configured to support etcd and master nodes on high availabiltiy mode.
 
 ## Vagrant
 
@@ -22,7 +22,7 @@ Boot up the machines
 vagrant up && vagrant ssh agent
 ```
 
-## Boostrapping the cluster
+## Boostrapping the cluster from the `agent` node
 #### On the `core @ agent` session :
 
 - Build the ansible RKT image.
@@ -61,7 +61,32 @@ kubectl get cs
 kubectl get pods
 ```
 
-## Running Ansible in CoreOS
+## Boostrapping the cluster from a mac
+- Get ansible installed on your machine
+- Move into the ansible directory.
+- Run the ansible playbooks to bootrap the repeatable cluster.
+
+Install ansible with brew
+```
+brew install ansible
+```
+Move into the ansible directory located at the same level as the vagrant directory
+```
+cd .. # (if you are were the vagrant directory)
+cd ansible
+```
+Just both boostrapping playbooks 
+```
+ansible-playbook kube-agent.yml 
+```
+> The kube-agent playbook will download and cache all external docker images and files required to bootstrap the cluster (**~1.5GB**). Technique allows for continuous destroying and recreation of the cluster with minimal network bandwidth requirements (do not destroy the **agent** host's host).
+**Attention:** This might take some time and bandwidth to execute as it needs to download the docker images and binaries from the internet.
+
+```
+run-playbook kube-cluster.yml
+```
+
+## How is Ansible run from a CoreOS node?
 Ansible is setup to run from a **RKT** image that must be firstly built by executing the custom `prepare-ansible` command.  Ansible can then be run by executing the custom `run-playbook` or `run-module` commands.
 
 #### On the `core @ agent` session :
