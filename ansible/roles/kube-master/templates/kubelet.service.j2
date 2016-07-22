@@ -2,8 +2,8 @@
 [Unit]
 Description=Kubernetes Kubelet Master
 Documentation=http://kubernetes.io/docs/admin/kubelet
-After=flanneld.service
-Requires=flanneld.service
+#After=flanneld.service
+#Requires=flanneld.service
 
 [Service]
 ExecStartPre=/usr/bin/mkdir -p {{ kube_manifests_dir }}

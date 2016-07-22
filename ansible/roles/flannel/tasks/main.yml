@@ -48,6 +48,6 @@
 
   become: true
   become_method: sudo
-
+  when: "'kube-masters' not in group_names"
 
 
