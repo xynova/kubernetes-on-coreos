@@ -6,8 +6,8 @@ Vagrant.require_version ">= 1.6.0"
 $update_channel = "alpha"
 $master_count = 1
 $master_vm_memory = 800
-$worker_count = 1
-$worker_vm_memory = 1000
+$addon_worker_count = 1
+$addon_worker_vm_memory = 1000
 $etcd_count = 1
 $etcd_vm_memory = 600
 $agent_vm_memory = 600
@@ -22,7 +22,7 @@ def getMasterIP(num)
   return "172.17.4.#{num+100}"
 end
 
-def getWorkerIP(num)
+def getAddonWorkerIP(num)
   return "172.17.4.#{num+200}"
 end
 
@@ -72,10 +72,10 @@ Vagrant.configure("2") do |config|
     end
   end
  
-  # CONFIGURE WORKER MACHINES
-  (1..$worker_count).each do |i|
-    config.vm.define vm_name = "w%d" % i do |worker|
-      setupBoxConfig worker, vm_name, getWorkerIP(i), $worker_vm_memory
+  # CONFIGURE ADDON WORKER MACHINES
+  (1..$addon_worker_count).each do |i|
+    config.vm.define vm_name = "a%d" % i do |addonWorker|
+      setupBoxConfig addonWorker, vm_name, getAddonWorkerIP(i), $addon_worker_vm_memory
     end
   end
 
@@ -160,8 +160,8 @@ def createAnsibleInventoryFile()
     f.puts("")
 
     f.puts("[kube-addon-workers]")
-    (1..$worker_count).each do |i|
-        f.puts(getWorkerIP(i))
+    (1..$addon_worker_count).each do |i|
+        f.puts(getAddonWorkerIP(i))
     end
     f.puts("")
 

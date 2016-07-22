@@ -25,7 +25,6 @@
     - include: tasks/transfer-imageFiles.yml
   roles:
     - pre-kube
-    - flannel
   post_tasks:
     - include: tasks/prep-admin-kubeconfig.yml
     - include: tasks/prep-kubeClient.yml
@@ -42,7 +41,8 @@
 - hosts: kube-addon-workers
   gather_facts: false
   roles:
-    - kube-worker
+    - flannel
+    - kube-addon-worker
   strategy: free
   tags: kube-addon-workers
 
