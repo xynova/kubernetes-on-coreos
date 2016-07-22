@@ -5,3 +5,6 @@ docker_addonManager: "{{ docker_kube_addonManager_image.registry }}/{{ docker_ku
 
 apiServer_tls_cert: "{{ kube_certs_dir }}/api-server.pem"
 apiServer_tls_key: "{{ kube_certs_dir }}/api-server-key.pem"
+
+serviceAccountTokens_cert: "{{ kube_certs_dir }}/service-account-tokens.pem"
+serviceAccountTokens_key: "{{ kube_certs_dir }}/service-account-tokens-key.pem"

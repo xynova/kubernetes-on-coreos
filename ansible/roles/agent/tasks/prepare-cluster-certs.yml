@@ -10,6 +10,7 @@
       - { cn: api-server, cnf: api-server }
       - { cn: system-account-user, cnf: user }
       - { cn: cluster-admin-user, cnf: user }
+      - { cn: service-account-tokens, cnf: user }
 
 
 - name: Ensure certs dir

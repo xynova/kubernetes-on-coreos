@@ -17,8 +17,8 @@ spec:
     - --kubeconfig={{ kube_cluster_config }}
     - --leader-elect=true
     - --port=10252
-    - --root-ca-file={{ kube_ca_cert }}                                # will be included in service account's token secret
-    #- --service-account-private-key-file={{ apiServer_tls_key }}      # filename containing a  key used to sign service account tokens
+    - --root-ca-file={{ kube_ca_cert }}                                   # will be included in service account's token secret
+    - --service-account-private-key-file={{ serviceAccountTokens_key }}   # filename containing a  key used to sign service account tokens
     livenessProbe:
       httpGet:
         host: 127.0.0.1
