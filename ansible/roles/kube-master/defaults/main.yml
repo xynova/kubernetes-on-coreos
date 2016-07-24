@@ -8,3 +8,7 @@ apiServer_tls_key: "{{ kube_certs_dir }}/api-server-key.pem"
 
 serviceAccountTokens_cert: "{{ kube_certs_dir }}/service-account-tokens.pem"
 serviceAccountTokens_key: "{{ kube_certs_dir }}/service-account-tokens-key.pem"
+
+kubernetesSshId_priv: "{{ kube_certs_dir }}/kubernetes-ssh-id"
+kubernetesSshId_pub: "{{ kube_certs_dir }}/kubernetes-ssh-id.pub"
+kubernetesSshId_user: core

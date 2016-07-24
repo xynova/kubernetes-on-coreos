@@ -13,6 +13,7 @@
     with_items:
       - api-server.tar
       - service-account-tokens.tar
+      - kubernetes-ssh-id.tar
       
   - name: Make root the owner of its TLS directory
     file: path={{ kube_certs_dir }} owner=root group=root recurse=true 
@@ -27,6 +28,8 @@
       - { path: "{{ apiServer_tls_cert }}", permission: "0400" }
       - { path: "{{ serviceAccountTokens_key }}", permission: "0400" }
       - { path: "{{ serviceAccountTokens_cert }}", permission: "0400" }
+      - { path: "{{ kubernetesSshId_priv }}", permission: "0400" }
+      - { path: "{{ kubernetesSshId_pub }}", permission: "0400" }
 
   become: true
   become_method: sudo

@@ -42,8 +42,8 @@ spec:
     - --service-account-lookup=false
     - --service-cluster-ip-range={{ kube_services_network_block }}
     - --service-node-port-range=30000-32767
-    #- --ssh-keyfile= # use secure SSH proxy to the nodes, using this user keyfile
-    #- --ssh-user=core
+    - --ssh-keyfile={{ kubernetesSshId_priv }} # use secure SSH proxy to the nodes, using this user keyfile
+    - --ssh-user={{ kubernetesSshId_user }}
     - --tls-cert-file={{ apiServer_tls_cert }}
     - --tls-private-key-file={{ apiServer_tls_key }}
     #- --token-auth-file=/var/lib/kubernetes/token.csv
@@ -62,6 +62,9 @@ spec:
     - mountPath: {{ kube_ca_cert | dirname }}
       name: ssl-certs-host
       readOnly: true
+    - mountPath: /home/core/.ssh
+      name: ssh-key-host
+      readOnly: true
   volumes:
   - hostPath:
       path: {{ kube_certs_dir }}
@@ -69,5 +72,8 @@ spec:
   - hostPath:
       path: {{ kube_ca_cert | dirname }}
     name: ssl-certs-host
+  - hostPath:
+      path: /home/core/.ssh
+    name: ssh-key-host
 
 
