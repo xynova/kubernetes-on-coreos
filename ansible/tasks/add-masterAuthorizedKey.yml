@@ -1,0 +1,11 @@
+---
+
+- name: Read kube-master public ssh key 
+  shell: cat {{ work_certs_dir }}/kubernetes-ssh-id.pub
+  delegate_to: "{{ groups['agent'] | first }}"
+  register: command_result
+
+- name: Add kube-master authorized-key on {{ ansible_host }}
+  authorized_key:
+    user: core
+    key: "{{ command_result.stdout }}"

@@ -28,6 +28,7 @@
   post_tasks:
     - include: tasks/prep-admin-kubeconfig.yml
     - include: tasks/prep-kubeClient.yml
+    - include: tasks/add-masterAuthorizedKey.yml
   strategy: free
   tags: kube-nodes
 
