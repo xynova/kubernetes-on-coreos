@@ -1,5 +1,10 @@
 # Kubernetes v1.3 on CoreOS
-The purpose of this project is to have a boostrapable version of Kubernetes that is easy to understand and explain to others. It has been configured to support etcd and master nodes on high availabiltiy mode.
+The purpose of this project is to have a boostrapable version of Kubernetes that is easy to understand and explain to others. It has been configured to support the following configurations:
+
+- Etcd on high availability mode
+- Master nodes on high availabiltiy mode 
+- Secure SSH communications between master and minion nodes.
+- Flannel overlay network
 
 ## Vagrant
 
