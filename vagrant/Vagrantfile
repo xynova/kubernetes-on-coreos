@@ -43,7 +43,7 @@ Vagrant.configure("2") do |config|
   config.vm.define "agent" do |agent|
     # ADD PRIVATE KEY SO AGENT CAN ACT AS THE ANSIBLE HOST TO BOOSTRAP CLUSTER 
     agent.vm.provision :file, :source => ".ssh/id_rsa", :destination => "/home/core/.ssh/id_rsa"
-    agent.vm.provision :file, :source => "vagrant-inventory.yml", :destination => "/tmp/vagrant-inventory.yml"
+    agent.vm.provision :file, :source => "vagrant-inventory.yml", :destination => "/tmp/vagrant-inventory.yml", :run => 'always'
     setupBoxConfig agent, "agent", $agentIP, $agent_vm_memory
 
     agent.vm.provision "shell", :run => 'always', inline: <<-EOF
