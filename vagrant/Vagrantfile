@@ -3,7 +3,10 @@
 Vagrant.require_version ">= 1.6.0"
 
 
-$update_channel = "alpha"
+$coreos_release_version = "1097.0.0"
+$coreos_update_channel = "alpha"
+$coreos_box_url = "http://%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json" % [ $coreos_update_channel , $coreos_box_version ]
+
 $master_count = 1
 $master_vm_memory = 800
 $addon_worker_count = 1
@@ -86,9 +89,9 @@ def setupBoxDefaults(config)
   # always use Vagrant's insecure key
   config.ssh.insert_key = false
 
-  config.vm.box = "coreos-%s" % $update_channel
-  config.vm.box_version = "= 1097.0.0"
-  config.vm.box_url = "http://%s.release.core-os.net/amd64-usr/current/coreos_production_vagrant.json" % $update_channel
+  config.vm.box = "coreos-%s" % $coreos_update_channel
+  config.vm.box_version = "= 1097.0.0" % $coreos_release_version
+  config.vm.box_url = $coreos_box_url
 
   config.vm.provider :virtualbox do |vb|
     # On VirtualBox, we don't have guest additions or a functional vboxsf
