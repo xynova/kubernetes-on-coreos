@@ -16,6 +16,7 @@
   post_tasks:
     - include: tasks/transfer-certFiles.yml
     - include: tasks/prep-admin-kubeconfig.yml
+    - include: tasks/prep-admin-remote-kubeconfig.yml
     - include: tasks/prep-kubeClient.yml
   tags: agent
 

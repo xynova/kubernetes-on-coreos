@@ -67,15 +67,24 @@ kubectl get cs
 kubectl get pods
 ```
 
-## Boostrapping the cluster from a mac
+## Boostrapping the cluster from a Mac
 - Get ansible installed on your machine
+- Install kubectl using brew
 - Move into the ansible directory.
 - Run the ansible playbooks to bootrap the repeatable cluster.
+- Copy down the kubeconfig files required by kubectl to connect to the cluster.
 
-Install ansible with brew
+Install ansible and netaddr module. As a recommendation, setup a virtual environments using py-env and pyenv-virtualenv.
 ```
-brew install ansible
+pip install ansible==2.1.2.0
+pip install netaddr==0.7.18
 ```
+
+Install kubectl using brew package manager
+```
+brew install kubernetes-cli
+```
+
 Move into the ansible directory located at the same level as the vagrant directory
 ```
 cd .. # (if you are were the vagrant directory)
@@ -90,6 +99,15 @@ ansible-playbook kube-agent.yml
 
 ```
 run-playbook kube-cluster.yml
+```
+
+In order to connect to the cluster from the local machine, we just bring the kubeconfig files down from the *agent* machine
+and setup an environment variable for the `kubectl` command to reference them.
+
+```
+# from the project root directory
+scp -i .ssh/id_rsa -r core@172.17.4.10:/home/core/kubeconfig-bundle .kube
+export KUBECONFIG=$(pwd)/.kube/config
 ```
 
 ## How is Ansible run from a CoreOS node?
