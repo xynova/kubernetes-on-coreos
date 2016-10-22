@@ -14,13 +14,13 @@ spec:
     - apiserver
     #- --admission-control=AlwaysAdmit
     - --admission-control=NamespaceLifecycle,LimitRanger,SecurityContextDeny,ServiceAccount,ResourceQuota
-    - --advertise-address={{ machine_ip }}
+    #- --advertise-address={{ machine_ip }} # using this prevents the auto creation of a cluster svc
     - --allow-privileged=true
     - --apiserver-count={{ groups['kube-masters'] | length }}
     - --authorization-mode=AlwaysAllow
     #- --authorization-mode=ABAC 
     #- --authorization-policy-file=/var/lib/kubernetes/authorization-policy.jsonl
-    - --bind-address=0.0.0.0    
+    - --bind-address={{ machine_ip }}  # explicitly set as vagrant eth0 points to nowhere   
     - --client-ca-file={{ kube_ca_cert }}
     - --enable-swagger-ui=true 
     - --etcd-cafile={{ kube_ca_cert }}

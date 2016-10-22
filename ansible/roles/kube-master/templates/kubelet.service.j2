@@ -7,12 +7,11 @@ Documentation=http://kubernetes.io/docs/admin/kubelet
 ExecStartPre=/usr/bin/mkdir -p {{ kube_manifests_dir }}
 
 # NOTES:
-# --api-servers is required even if --kubeconfig is defined
+# without --require-kubeconfig then --api-servers is always required even if --kubeconfig is defined
 
 ExecStart=/opt/bin/kubelet \
   --address=0.0.0.0 \
   --allow-privileged=true \
-  --api-servers={{ master_endpoints }} \
   --cadvisor-port=4194 \
   --cluster-dns={{ kube_dns_service_ip }} \
   --cluster-domain={{ kube_cluster_domain }} \
@@ -32,20 +31,15 @@ ExecStart=/opt/bin/kubelet \
   --port=10250 \
   --read-only-port=10255 \
   --register-node=true \
-  --register-schedulable=false
+  --register-schedulable=false \
+  --require-kubeconfig
 
 Restart=always
+StartLimitInterval=0
 RestartSec=10
 
 [Install]
 WantedBy=multi-user.target
-
-
-
-
-
-
-
 
 
 
