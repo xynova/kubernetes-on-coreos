@@ -23,7 +23,26 @@ spec:
     spec:
       containers:
       - name: kubedns
-        image: gcr.io/google_containers/kubedns-amd64:1.6
+        image: {{ docker_kube_dsn }}
+        args:
+        # command = "/kube-dns"
+        - --domain={{ kube_cluster_domain }}
+        - --dns-port=10053
+        #- --kubecfg-file={{ kube_cluster_config }}
+        ports:
+        - containerPort: 10053
+          name: dns-local
+          protocol: UDP
+        - containerPort: 10053
+          name: dns-tcp-local
+          protocol: TCP
+#        volumeMounts:
+#        - mountPath: {{ kube_certs_dir }}
+#          name: ssl-certs-kubernetes
+#          readOnly: true
+#        - mountPath: {{ kube_ca_cert | dirname }}
+#          name: ssl-certs-host
+#          readOnly: true
         resources:
           # TODO: Set memory limits when we've profiled the container for large
           # clusters, then set request = limit to keep this container in
@@ -53,28 +72,9 @@ spec:
           # only setup the /readiness HTTP server once that's available.
           initialDelaySeconds: 30
           timeoutSeconds: 5
-        args:
-        # command = "/kube-dns"
-        - --domain={{ kube_cluster_domain }}
-        - --dns-port=10053
-        - --kubecfg-file={{ kube_cluster_config }}
-        ports:
-        - containerPort: 10053
-          name: dns-local
-          protocol: UDP
-        - containerPort: 10053
-          name: dns-tcp-local
-          protocol: TCP
-        volumeMounts:
-        - mountPath: {{ kube_certs_dir }}
-          name: ssl-certs-kubernetes
-          readOnly: true
-        - mountPath: {{ kube_ca_cert | dirname }}
-          name: ssl-certs-host
-          readOnly: true
 
       - name: dnsmasq
-        image: gcr.io/google_containers/kube-dnsmasq-amd64:1.3
+        image: {{ docker_kube_masq }}
         args:
         - --cache-size=1000
         - --no-resolv
@@ -88,7 +88,7 @@ spec:
           protocol: TCP
 
       - name: healthz
-        image: gcr.io/google_containers/exechealthz-amd64:1.0
+        image: {{ docker_kube_health }}
         resources:
           # keep request = limit to keep this container in guaranteed class
           limits:
@@ -98,7 +98,8 @@ spec:
             cpu: 10m
             memory: 20Mi
         args:
-        - -cmd=nslookup kubernetes.default.svc.cluster.local 127.0.0.1 >/dev/null && nslookup kubernetes.default.svc.cluster.local 127.0.0.1:10053 >/dev/null
+        - -cmd=nslookup kubernetes.default.svc.cluster.local 127.0.0.1:53 >/dev/null 
+          && nslookup kubernetes.default.svc.cluster.local 127.0.0.1:10053 >/dev/null
         - -port=8080
         - -quiet
         ports:
@@ -107,11 +108,11 @@ spec:
 
       dnsPolicy: Default  # Don't use cluster DNS.
 
-      volumes:
-      - name: ssl-certs-kubernetes
-        hostPath:
-          path: {{ kube_certs_dir }}
-      - name: ssl-certs-host
-        hostPath:
-          path: {{ kube_ca_cert | dirname }}
+#      volumes:
+#      - name: ssl-certs-kubernetes
+#        hostPath:
+#          path: {{ kube_certs_dir }}
+#      - name: ssl-certs-host
+#        hostPath:
+#          path: {{ kube_ca_cert | dirname }}
 

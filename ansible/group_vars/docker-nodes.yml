@@ -16,10 +16,14 @@ docker_kube_addonManager_image: { name: "kube-addon-manager", tag: "v5.1", regis
 docker_kube_ui_images:
   - { name: "kubernetes-dashboard-amd64", tag: "v1.0.1" , registry: "{{ google_registry }}" }
 
-docker_kube_dns_images:
-  - { name: "kubedns-amd64", tag: "1.8", registry: "{{ google_registry }}" }
-  - { name: "kube-dnsmasq-amd64", tag: "1.4", registry: "{{ google_registry }}" }
-  - { name: "exechealthz-amd64", tag: "1.2", registry: "{{ google_registry }}" }
+
+docker_kube_dns_dns_image: { name: "kubedns-amd64", tag: "1.8", registry: "{{ google_registry }}" }
+docker_kube_dns_mask_image: { name: "kube-dnsmasq-amd64", tag: "1.4", registry: "{{ google_registry }}" }
+docker_kube_dns_health_image: { name: "exechealthz-amd64", tag: "1.2", registry: "{{ google_registry }}" }
+docker_kube_dns_images: 
+  - "{{ docker_kube_dns_dns_image }}"
+  - "{{ docker_kube_dns_mask_image }}"
+  - "{{ docker_kube_dns_health_image }}"
 
 docker_kube_heapster_images:
   - { name: "heapster", tag: "v1.1.0-beta2", registry: "{{ google_registry }}" }

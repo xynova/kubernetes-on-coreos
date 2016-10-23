@@ -2,6 +2,10 @@
 
 - name: Copy manifests
   template: src={{ item }}.yml.j2 dest={{ kube_addons_dir }}/{{ item }}.yaml
+  vars:
+    docker_kube_dsn: "{{ docker_kube_dns_dns_image.registry }}/{{ docker_kube_dns_dns_image.name }}:{{ docker_kube_dns_dns_image.tag }}"
+    docker_kube_masq: "{{ docker_kube_dns_mask_image.registry }}/{{ docker_kube_dns_mask_image.name }}:{{ docker_kube_dns_mask_image.tag }}"
+    docker_kube_health: "{{ docker_kube_dns_health_image.registry }}/{{ docker_kube_dns_health_image.name }}:{{ docker_kube_dns_health_image.tag }}"
   with_items:
     - dns-svc
     - dns-rc
