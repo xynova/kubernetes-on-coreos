@@ -1,9 +1,0 @@
----
-
-- hosts: agent
-  gather_facts: false
-  post_tasks:
-    - include: tasks/prep-admin-remote-kubeconfig.yml
-  tags: agent
-
-

@@ -1,5 +1,18 @@
 ---
 
+# Make sure the id_rsa key is present to talk to other nodes from the agent node
+- hosts: agent
+  tasks:
+  - name: Stat file {{ home_dir }}/.ssh/id_rsa
+    stat: path={{ home_dir }}/.ssh/id_rsa
+    register: command_result
+  - name: Validate {{ home_dir }}/.ssh/id_rsa is present 
+    assert: 
+      that: "command_result.stat.exists == true" 
+      msg: "The private key must exist for the agent node to configure other nodes"
+  tags: agent
+      
+# Disable automatic updates in CoreOS
 - hosts: all
   gather_facts: false
   tasks:
@@ -8,6 +21,8 @@
   become_method: sudo
   tags: init
 
+
+# Prepare the agent as a cache to repeteadly boostrap the cluster
 - hosts: agent
   gather_facts: false
   roles: 
