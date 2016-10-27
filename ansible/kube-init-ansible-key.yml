@@ -1,0 +1,31 @@
+---
+
+# Copies a locally generated ssh key to the agent node
+# This is required to be able to scp and manage other nodes from the agent
+
+- hosts: agent
+  gather_facts: false
+  vars:
+    local_vagrant_dir: ../vagrant
+    private_key_file: "{{ local_vagrant_dir }}/.ssh/id_rsa"
+    remote_ssh_dir: /home/core/.ssh
+  tasks:
+    - block:
+      - name: Stat file {{ private_key_file }}
+        stat: path={{ private_key_file }}
+        register: command_result
+
+      - name: Create {{ private_key_file }} key pair if not present 
+        shell: ./init-ansible-keys.sh 
+        args:
+          chdir: "{{ local_vagrant_dir }}"
+        when: command_result.stat.exists == false 
+
+      delegate_to: localhost
+
+    - name: Copy {{ private_key_file }} to the agent node
+      copy: src={{ private_key_file }} dest={{ remote_ssh_dir }}/{{ private_key_file | basename }} owner=core group=core mode=0600
+
+  tags: agent
+
+
