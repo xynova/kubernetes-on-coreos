@@ -1,6 +1,6 @@
 ---
 
-- name: Copy {{ work_images_dir }} from agent
+- name: Only copy [kyperkube, weave] images from agent to all kubeNodes
   synchronize: 
     src: "{{ work_images_dir }}"
     dest: "{{ home_dir }}"
@@ -10,11 +10,12 @@
     rsync_opts:
       - "--include='*/'"
       - "--include='{{ docker_kube_hyperkube_image.name  }}*'"
+      - "{% for item in docker_weave_images %}--include='{{ item.name }}*' {% endfor %}"
       - "--exclude='*'"
   delegate_to: "{{ groups['agent'] | first }}"
   when: "'kube-nodes' in group_names"
 
-- name: Copy {{ work_images_dir }} from agent
+- name: Only copy [addonManager] images from agent to master
   synchronize: 
     src: "{{ work_images_dir }}"
     dest: "{{ home_dir }}"
@@ -28,7 +29,7 @@
   delegate_to: "{{ groups['agent'] | first }}"
   when: "'kube-masters' in group_names"
 
-- name: Copy {{ work_images_dir }} from agent
+- name: Only copy [kubeDsn] images from agent to addonWorkers
   synchronize: 
     src: "{{ work_images_dir }}"
     dest: "{{ home_dir }}"

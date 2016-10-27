@@ -13,4 +13,7 @@
 - name: Download RKT flannel.aci
   raw:  wget  --continue  --output-document={{ work_dir }}/{{ rtk_flannelAci_filename }} {{ rtk_flannelAci_download_url }}   
 
+- name: Download CNI plugins version {{ cni_version }}
+  raw:  wget  --continue  --output-document={{ work_dir }}/{{ cni_plugins_download_url | basename }} {{ cni_plugins_download_url }}   
+
 

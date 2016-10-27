@@ -30,6 +30,9 @@ docker_kube_heapster_images:
   - { name: "heapster_influxdb", tag: "v0.6", registry: "{{ google_registry }}" }
   - { name: "heapster_grafana", tag: "v2.6.0-2", registry: "{{ google_registry }}" }
 
+docker_weave_images:
+  - { name: "weave-npc", tag: "1.7.2", registry: "docker.io/weaveworks" }
+  - { name: "weave-kube", tag: "1.7.2", registry: "docker.io/weaveworks" }
 
 kube_binaries_download_url_base: https://storage.googleapis.com/kubernetes-release/release/v{{ kube_version }}/bin/linux/amd64
 kube_binaries_download_filenames:
@@ -38,5 +41,7 @@ kube_binaries_download_filenames:
 
 rtk_flannelAci_download_url: https://quay.io/c1/aci/quay.io/coreos/flannel/0.5.5/aci/linux/amd64/
 rtk_flannelAci_filename: flannel.aci
+
+cni_plugins_download_url: https://github.com/containernetworking/cni/releases/download/v0.3.0/cni-v0.3.0.txz
 
 

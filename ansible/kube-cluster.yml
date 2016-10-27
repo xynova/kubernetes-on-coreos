@@ -42,7 +42,7 @@
 - hosts: kube-addon-workers
   gather_facts: false
   roles:
-    - flannel
+    #- flannel
     - kube-addon-worker
   strategy: free
   tags: kube-addon-workers

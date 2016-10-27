@@ -30,3 +30,18 @@
   when: "'kube-addon-workers' in group_names"
 
 
+- name: Load Weave-Net docker images
+  shell: >
+    docker images | grep '{{ item.registry }}/{{ item.name }} *{{ item.tag }}' > /dev/null 
+    || (ls  | grep -q {{ item.name }}-{{ item.tag }} && docker load < {{ item.name }}-{{ item.tag }})
+    || exit 0
+  args:
+    chdir: "{{ work_images_dir }}"
+  with_items:
+    - "{{ docker_weave_images }}"
+  register: command_result
+  changed_when: command_result.stdout_lines | length > 0
+  when: "'kube-nodes' in group_names"
+
+
+

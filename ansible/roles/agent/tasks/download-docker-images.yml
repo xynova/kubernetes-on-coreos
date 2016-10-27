@@ -10,6 +10,7 @@
     - "{{ docker_kube_dns_images }}"
     - "{{ docker_kube_ui_images }}"
     - "{{ docker_kube_heapster_images }}"
+    - "{{ docker_weave_images }}"
   register: command_result
   changed_when: command_result.stdout_lines | length > 0
 
@@ -25,6 +26,7 @@
     - "{{ docker_kube_dns_images }}"
     - "{{ docker_kube_ui_images }}"
     - "{{ docker_kube_heapster_images }}"
+    - "{{ docker_weave_images }}"
   args:
     creates: "{{ work_images_dir }}/{{ item.name }}-{{ item.tag }}"
 
