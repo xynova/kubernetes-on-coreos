@@ -6,12 +6,8 @@
 - name: INCLUDE Import cached rtk images for flannel
   include: import-rkt-cached-images.yml
 
-- name: Copy pre-copied kube-binaries from {{ work_dir }} into {{ opt_bin_dir }}
-  shell: cp -f {{ work_dir }}/{{ item }} {{ opt_bin_dir }}/{{ item }}
-  with_items: 
-    - "{{ kube_binaries_download_filenames }}"
-  changed_when: false
-
+- name: INCLUDE Import kublet, kubectl and CNI binaries
+  include: import-binaries.yml
 
 - name: Ensure kube-node configuration directories
   file: path={{ item }} state=directory recurse=true

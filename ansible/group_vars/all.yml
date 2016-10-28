@@ -47,5 +47,6 @@ master_endpoints: "{% for hostname in groups['kube-masters'] %}{{ master_endpoin
 flanel_network_block: 10.1.0.0/16
 flannel_network_backend_type: vxlan
 
-
+cni_conf_dir: /etc/cni/net.d
+cni_bin_dir: /opt/cni/bin
 
