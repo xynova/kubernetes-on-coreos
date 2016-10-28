@@ -1,0 +1,15 @@
+---
+
+- name: Copy pre-copied kube-binaries from {{ work_dir }} into {{ opt_bin_dir }}
+  shell: cp -f {{ work_dir }}/{{ item }} {{ opt_bin_dir }}/{{ item }}
+  with_items: 
+    - "{{ kube_binaries_download_filenames }}"
+  changed_when: false
+
+- name: Ensure {{ cni_bin_dir }} directory
+  file: path={{ cni_bin_dir }} recurse=true state=directory
+
+- name: Extract CNI binaries
+  shell: cat {{ work_dir }}/{{ cni_plugins_download_url | basename }} | tar -Jxv -C {{ cni_bin_dir }} --skip-old-files
+
+
