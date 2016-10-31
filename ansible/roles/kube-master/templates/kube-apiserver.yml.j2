@@ -12,9 +12,7 @@ spec:
     command:
     - /hyperkube
     - apiserver
-    #- --admission-control=AlwaysAdmit
     - --admission-control=NamespaceLifecycle,LimitRanger,SecurityContextDeny,ServiceAccount,ResourceQuota
-    #- --advertise-address={{ machine_ip }} # using this prevents the auto creation of a cluster svc
     - --allow-privileged=true
     - --apiserver-count={{ groups['kube-masters'] | length }}
     - --authorization-mode=AlwaysAllow

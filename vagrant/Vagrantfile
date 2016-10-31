@@ -3,8 +3,8 @@
 Vagrant.require_version ">= 1.6.0"
 
 
-$coreos_release_version = "1122.0.0"
-$coreos_update_channel = "alpha"
+$coreos_release_version = "1122.3.0"
+$coreos_update_channel = "stable"
 $coreos_box_url = "http://%s.release.core-os.net/amd64-usr/%s/coreos_production_vagrant.json" % [ $coreos_update_channel , $coreos_release_version ]
 
 $master_count = 1

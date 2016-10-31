@@ -5,6 +5,9 @@
   with_items:
     - "{{ kube_binaries_download_filenames }}"
 
+- name: Download weave helper
+  raw:  wget  --continue --directory-prefix {{ work_dir }} {{ weave_helper_download_url }}
+
 - name: Change mode to executable on downloaded files
   file: path={{ work_dir }}/{{ item }} state=file mode=a+x
   with_items:
