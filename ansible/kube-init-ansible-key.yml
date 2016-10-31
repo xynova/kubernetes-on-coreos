@@ -9,7 +9,7 @@
     local_vagrant_dir: ../vagrant
     private_key_file: "{{ local_vagrant_dir }}/.ssh/id_rsa"
     remote_ssh_dir: /home/core/.ssh
-  tasks:
+  pre_tasks:
     - block:
       - name: Stat file {{ private_key_file }}
         stat: path={{ private_key_file }}
@@ -22,10 +22,11 @@
         when: command_result.stat.exists == false 
 
       delegate_to: localhost
-
+  roles: 
+    - pre-any
+  post_tasks:
     - name: Copy {{ private_key_file }} to the agent node
       copy: src={{ private_key_file }} dest={{ remote_ssh_dir }}/{{ private_key_file | basename }} owner=core group=core mode=0600
-
   tags: agent
 
 

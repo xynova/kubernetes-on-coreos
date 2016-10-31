@@ -2,7 +2,10 @@
 
 # Make sure the id_rsa key is present to talk to other nodes from the agent node
 - hosts: agent
-  tasks:
+  gather_facts: false
+  roles: 
+    - pre-any
+  post_tasks:
   - name: Stat file {{ home_dir }}/.ssh/id_rsa
     stat: path={{ home_dir }}/.ssh/id_rsa
     register: command_result
@@ -26,7 +29,6 @@
 - hosts: agent
   gather_facts: false
   roles: 
-    - pre-any
     - agent
   post_tasks:
     - include: tasks/transfer-certFiles.yml
