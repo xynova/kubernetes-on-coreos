@@ -9,23 +9,23 @@ $coreos_box_url = "http://%s.release.core-os.net/amd64-usr/%s/coreos_production_
 
 $master_count = 1
 $master_vm_memory = 800
-$addon_worker_count = 1
+$addon_worker_count = 2
 $addon_worker_vm_memory = 1000
 $etcd_count = 1
 $etcd_vm_memory = 600
 $agent_vm_memory = 600
 
-$agentIP = "172.17.4.10"
+$agent_ip = "172.17.4.10"
 
-def getEtcdIP(num)
+def get_etcd_ip(num)
   return "172.17.4.#{num+50}"
 end
 
-def getMasterIP(num)
+def get_master_ip(num)
   return "172.17.4.#{num+100}"
 end
 
-def getAddonWorkerIP(num)
+def get_addon_worker_ip(num)
   return "172.17.4.#{num+200}"
 end
 
@@ -39,15 +39,15 @@ system("
 
 Vagrant.configure("2") do |config|
 
-  setupBoxDefaults(config)
-  createAnsibleInventoryFile()
+  setup_box_defaults(config)
+  create_ansible_inventory_file()
 
   # CONFIGURE BOOTSTRAPPING CACHE REGISTRY
   config.vm.define "agent" do |agent|
     # ADD PRIVATE KEY SO AGENT CAN ACT AS THE ANSIBLE HOST TO BOOSTRAP CLUSTER 
     agent.vm.provision :file, :source => ".ssh/id_rsa", :destination => "/home/core/.ssh/id_rsa"
     agent.vm.provision :file, :source => "vagrant-inventory.yml", :destination => "/tmp/vagrant-inventory.yml", :run => 'always'
-    setupBoxConfig agent, "agent", $agentIP, $agent_vm_memory
+    setup_box_config agent, "agent", $agent_ip, $agent_vm_memory
 
     agent.vm.provision "shell", :run => 'always', inline: <<-EOF
         cd /tmp && rm -Rf kubernetes-on-coreos
@@ -64,27 +64,27 @@ Vagrant.configure("2") do |config|
   # CONFIGURE ETCD MACHINES
   (1..$etcd_count).each do |i|
     config.vm.define vm_name = "e%d" % i do |etcd|
-      setupBoxConfig etcd, vm_name, getEtcdIP(i), $etcd_vm_memory
+      setup_box_config etcd, vm_name, get_etcd_ip(i), $etcd_vm_memory
     end
   end
 
   # CONFIGURE MASTER MACHINES
   (1..$master_count).each do |i|
     config.vm.define vm_name = "m%d" % i do |master|
-      setupBoxConfig master, vm_name, getMasterIP(i), $master_vm_memory
+      setup_box_config master, vm_name, get_master_ip(i), $master_vm_memory
     end
   end
  
   # CONFIGURE ADDON WORKER MACHINES
   (1..$addon_worker_count).each do |i|
     config.vm.define vm_name = "a%d" % i do |addonWorker|
-      setupBoxConfig addonWorker, vm_name, getAddonWorkerIP(i), $addon_worker_vm_memory
+      setup_box_config addonWorker, vm_name, get_addon_worker_ip(i), $addon_worker_vm_memory
     end
   end
 
 end
 
-def setupBoxDefaults(config)
+def setup_box_defaults(config)
   # SETUP MACHINE DEFAULTS
   # always use Vagrant's insecure key
   config.ssh.insert_key = false
@@ -109,7 +109,7 @@ def setupBoxDefaults(config)
 end
 
 
-def setupBoxConfig(confObj, hostname, ip, memory)
+def setup_box_config(confObj, hostname, ip, memory)
     conf = confObj
     conf.vm.hostname = hostname
     conf.vm.provider :virtualbox do |v|
@@ -140,31 +140,31 @@ def setupBoxConfig(confObj, hostname, ip, memory)
 end
 
 
-def createAnsibleInventoryFile()
+def create_ansible_inventory_file()
 
   File.open("vagrant-inventory.yml","w+") do |f|
     f.puts("[all:vars]","ansible_python_interpreter = /opt/bin/python")
     f.puts("")
 
     f.puts("[agent]")
-    f.puts($agentIP)
+    f.puts($agent_ip)
     f.puts("")
 
     f.puts("[etcd]")
     (1..$etcd_count).each do |i|
-        f.puts(getEtcdIP(i))
+        f.puts(get_etcd_ip(i))
     end
     f.puts("")
 
     f.puts("[kube-masters]")
     (1..$master_count).each do |i|
-        f.puts(getMasterIP(i))
+        f.puts(get_master_ip(i))
     end
     f.puts("")
 
     f.puts("[kube-addon-workers]")
     (1..$addon_worker_count).each do |i|
-        f.puts(getAddonWorkerIP(i))
+        f.puts(get_addon_worker_ip(i))
     end
     f.puts("")
 

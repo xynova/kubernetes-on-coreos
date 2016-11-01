@@ -7,19 +7,21 @@ metadata:
   namespace: kube-system
   labels:
     k8s-app: kube-dns
-    version: v18
+    version: v20
     kubernetes.io/cluster-service: "true"
 spec:
   replicas: {{ groups['kube-addon-workers'] | length }} 
   selector:
     k8s-app: kube-dns
-    version: v18
+    version: v20
   template:
     metadata:
       labels:
         k8s-app: kube-dns
-        version: v18
-        kubernetes.io/cluster-service: "true"
+        version: v20
+      annotations:
+        scheduler.alpha.kubernetes.io/critical-pod: '' #http://kubernetes.io/docs/admin/rescheduler/
+        scheduler.alpha.kubernetes.io/tolerations: '[{"key":"CriticalAddonsOnly", "operator":"Exists"}]'
     spec:
       containers:
       - name: kubedns
@@ -36,13 +38,6 @@ spec:
         - containerPort: 10053
           name: dns-tcp-local
           protocol: TCP
-#        volumeMounts:
-#        - mountPath: {{ kube_certs_dir }}
-#          name: ssl-certs-kubernetes
-#          readOnly: true
-#        - mountPath: {{ kube_ca_cert | dirname }}
-#          name: ssl-certs-host
-#          readOnly: true
         resources:
           # TODO: Set memory limits when we've profiled the container for large
           # clusters, then set request = limit to keep this container in
@@ -79,6 +74,7 @@ spec:
         - --cache-size=1000
         - --no-resolv
         - --server=127.0.0.1#10053
+        - --log-facility=-
         ports:
         - containerPort: 53
           name: dns
@@ -98,21 +94,16 @@ spec:
             cpu: 10m
             memory: 20Mi
         args:
-        - -cmd=nslookup kubernetes.default.svc.cluster.local 127.0.0.1:53 >/dev/null 
-          && nslookup kubernetes.default.svc.cluster.local 127.0.0.1:10053 >/dev/null
-        - -port=8080
-        - -quiet
+        - --cmd=nslookup kubernetes.default.svc.{{ kube_cluster_domain }} 127.0.0.1:53 >/dev/null 
+        - --url=/healthz-dnsmasq
+        - --cmd=nslookup kubernetes.default.svc.{{ kube_cluster_domain }} 127.0.0.1:10053 >/dev/null
+        - --url=/healthz-kubedns
+        - --port=8080
+        - --quiet
         ports:
         - containerPort: 8080
           protocol: TCP
 
       dnsPolicy: Default  # Don't use cluster DNS.
 
-#      volumes:
-#      - name: ssl-certs-kubernetes
-#        hostPath:
-#          path: {{ kube_certs_dir }}
-#      - name: ssl-certs-host
-#        hostPath:
-#          path: {{ kube_ca_cert | dirname }}
 
