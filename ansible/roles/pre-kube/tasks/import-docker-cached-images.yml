@@ -23,7 +23,7 @@
   with_items:
     - "{{ docker_kube_hyperkube_image }}"
     - "{{ docker_kube_dns_images }}"
-    - "{{ docker_kube_ui_images }}"
+    - "{{ docker_kube_ui_image }}"
     - "{{ docker_kube_heapster_images }}"
   register: command_result
   changed_when: command_result.stdout_lines | length > 0

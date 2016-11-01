@@ -6,9 +6,12 @@
     docker_kube_dsn: "{{ docker_kube_dns_dns_image.registry }}/{{ docker_kube_dns_dns_image.name }}:{{ docker_kube_dns_dns_image.tag }}"
     docker_kube_masq: "{{ docker_kube_dns_mask_image.registry }}/{{ docker_kube_dns_mask_image.name }}:{{ docker_kube_dns_mask_image.tag }}"
     docker_kube_health: "{{ docker_kube_dns_health_image.registry }}/{{ docker_kube_dns_health_image.name }}:{{ docker_kube_dns_health_image.tag }}"
+    docker_kube_dash: "{{ docker_kube_ui_image.registry }}/{{ docker_kube_ui_image.name }}:{{ docker_kube_ui_image.tag }}"
   with_items:
     - dns-svc
     - dns-rc
+    - dashboard-svc
+    - dashboard-rc
   become: true
   become_method: sudo
 
