@@ -7,9 +7,7 @@
   with_items:
     - "{{ docker_kube_hyperkube_image }}"
     - "{{ docker_kube_addonManager_image }}"
-    - "{{ docker_kube_dns_images }}"
-    - "{{ docker_kube_ui_image }}"
-    - "{{ docker_kube_heapster_images }}"
+    - "{{ docker_kube_addons_images }}"
   register: command_result
   changed_when: command_result.stdout_lines | length > 0
 
@@ -22,9 +20,7 @@
   with_items:
     - "{{ docker_kube_hyperkube_image }}"
     - "{{ docker_kube_addonManager_image }}"
-    - "{{ docker_kube_dns_images }}"
-    - "{{ docker_kube_ui_image }}"
-    - "{{ docker_kube_heapster_images }}"
+    - "{{ docker_kube_addons_images }}"
   args:
     creates: "{{ work_images_dir }}/{{ item.name }}-{{ item.tag }}"
 

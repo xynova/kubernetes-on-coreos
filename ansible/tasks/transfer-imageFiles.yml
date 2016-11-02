@@ -1,6 +1,6 @@
 ---
 
-- name: Copy {{ work_images_dir }} from agent
+- name: Transfer hyperkube docker images from agent to [kube-nodes] 
   synchronize: 
     src: "{{ work_images_dir }}"
     dest: "{{ home_dir }}"
@@ -14,7 +14,7 @@
   delegate_to: "{{ groups['agent'] | first }}"
   when: "'kube-nodes' in group_names"
 
-- name: Copy {{ work_images_dir }} from agent
+- name: Transfer addonManager docker images from agent to [kube-masters]
   synchronize: 
     src: "{{ work_images_dir }}"
     dest: "{{ home_dir }}"
@@ -28,7 +28,7 @@
   delegate_to: "{{ groups['agent'] | first }}"
   when: "'kube-masters' in group_names"
 
-- name: Copy {{ work_images_dir }} from agent
+- name: Transfer addon docker images from agent to [kube-addon-workers]
   synchronize: 
     src: "{{ work_images_dir }}"
     dest: "{{ home_dir }}"
@@ -37,7 +37,7 @@
     recursive: true 
     rsync_opts:
       - "--include='*/'"
-      - "{% for item in docker_kube_dns_images %}--include='{{ item.name }}*' {% endfor %}"
+      - "{% for item in docker_kube_addons_images %}--include='{{ item.name }}*' {% endfor %}"
       - "--exclude='*'"
   delegate_to: "{{ groups['agent'] | first }}"
   when: "'kube-addon-workers' in group_names"

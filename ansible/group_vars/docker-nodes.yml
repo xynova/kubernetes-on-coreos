@@ -12,17 +12,18 @@ docker_kube_addonManager_image: { name: "kube-addon-manager", tag: "v5.1", regis
 docker_kube_dns_dns_image: { name: "kubedns-amd64", tag: "1.8", registry: "{{ google_registry }}" }
 docker_kube_dns_mask_image: { name: "kube-dnsmasq-amd64", tag: "1.4", registry: "{{ google_registry }}" }
 docker_kube_dns_health_image: { name: "exechealthz-amd64", tag: "1.2", registry: "{{ google_registry }}" }
-docker_kube_dns_images: 
+
+docker_kube_heapster_image: { name: "heapster", tag: "v1.2.0", registry: "{{ google_registry }}" }
+docker_kube_ui_image: { name: "kubernetes-dashboard-amd64", tag: "v1.4.1", registry: "{{ google_registry }}" }
+docker_kube_addonResizer_image: { name: "addon-resizer", tag: "1.6", registry: "{{ google_registry }}" }  
+
+docker_kube_addons_images: 
   - "{{ docker_kube_dns_dns_image }}"
   - "{{ docker_kube_dns_mask_image }}"
   - "{{ docker_kube_dns_health_image }}"
+  - "{{ docker_kube_heapster_image }}"
+  - "{{ docker_kube_ui_image }}"
 
-docker_kube_heapster_images:
-  - { name: "heapster", tag: "v1.1.0-beta2", registry: "{{ google_registry }}" }
-  - { name: "heapster_influxdb", tag: "v0.6", registry: "{{ google_registry }}" }
-  - { name: "heapster_grafana", tag: "v2.6.0-2", registry: "{{ google_registry }}" }
-
-docker_kube_ui_image: { name: "kubernetes-dashboard-amd64", tag: "v1.4.1", registry: "{{ google_registry }}" }
 
 # FLANNEL IMAGES
 rtk_flannelAci_download_url: https://quay.io/c1/aci/quay.io/coreos/flannel/0.5.5/aci/linux/amd64/
