@@ -42,7 +42,7 @@ spec:
           image: {{ docker_kube_heapster }}
           command:
             - /heapster
-            - --source=kubernetes.summary_api:''
+            - --source=kubernetes.summary_api:''?kubeletPort=10250&kubeletHttps=true&insecure=true
           livenessProbe:
             httpGet:
               path: /healthz
