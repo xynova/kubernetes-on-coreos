@@ -117,17 +117,18 @@ def setup_box_config(confObj, hostname, ip, memory)
     end
     conf.vm.network :private_network, ip: ip
 
-    # INSERT CUSTOM SSH KEY
-    conf.vm.provision :file, :source => ".ssh/id_rsa.pub", :destination => "/home/core/.ssh/id_rsa.pub", :run => 'always'
+    # INSERT ANSIBLE SSH PUB KEY
+    $ssh_dir="/home/core/.ssh"
+    $key_file_dest="#{$ssh_dir}/authorized_keys.d/ansible_rsa.pub"
+    conf.vm.provision :file, :source => ".ssh/id_rsa.pub", :destination => $key_file_dest, :run => 'always'
 
     conf.vm.provision "shell", :run => 'always', inline: <<-EOF
     # Append the keys
     HOME=/home/core \
-    && chmod 0700 -R $HOME/.ssh/id_rsa* \
-    && chown core:core -R $HOME/.ssh/id_rsa* \
-    && KEY=$(cat $HOME/.ssh/id_rsa.pub) \
-    && grep -q "$KEY" $HOME/.ssh/authorized_keys \
-    || cat $HOME/.ssh/id_rsa.pub >> $HOME/.ssh/authorized_keys
+    && chmod 0700 #{$key_file_dest} \
+    && chown core:core #{$key_file_dest} \
+    && KEY=$(cat #{$key_file_dest}) \
+    && cat #{$ssh_dir}/authorized_keys.d/* > #{$ssh_dir}/authorized_keys
     
     # Remove SSHD ln and copy the editable file
     sudo rm /etc/ssh/sshd_config && sudo cp /usr/share/ssh/sshd_config /etc/ssh/sshd_config

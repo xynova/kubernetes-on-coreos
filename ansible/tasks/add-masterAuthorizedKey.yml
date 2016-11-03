@@ -1,11 +1,12 @@
 ---
 
-- name: Read kube-master public ssh key 
-  shell: cat {{ work_certs_dir }}/kubernetes-ssh-id.pub
-  delegate_to: "{{ groups['agent'] | first }}"
-  register: command_result
+- block:
+  - name: Copy Master SSH public key to nodes for tunneling from master to nodes
+    synchronize: src={{ work_certs_dir }}/kubernetes-ssh-id.pub dest={{ home_dir }}/.ssh/authorized_keys.d/
+    delegate_to: "{{ groups['agent'] | first }}"
 
-- name: Add kube-master authorized-key on {{ ansible_host }}
-  authorized_key:
-    user: core
-    key: "{{ command_result.stdout }}"
+  - name: Re-synch authorized_keys from {{ home_dir }}/.ssh/authorized_keys.d
+    shell: cat {{ ssh_dir }}/authorized_keys.d/* > {{ ssh_dir }}/authorized_keys 
+  vars:
+    ssh_dir: "{{ home_dir }}/.ssh"
+
