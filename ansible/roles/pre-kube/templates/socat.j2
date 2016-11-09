@@ -1,0 +1,3 @@
+#! /bin/bash
+PATH={{ socat_bin_dir }}:/opt/bin:/usr/bin:/bin:/usr/sbin:/sbin
+LD_LIBRARY_PATH={{ socat_lib_dir }}:$LD_LIBRARY_PATH exec {{ socat_bin_dir }}/socat "$@"

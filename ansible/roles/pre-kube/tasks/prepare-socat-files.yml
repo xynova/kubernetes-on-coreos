@@ -1,0 +1,30 @@
+---
+
+- block:
+  - name: set socat variables
+    set_fact:
+      socat_dir: "{{ opt_dir }}/socat.d"
+      socat_bin_dir: "{{ opt_dir }}/socat.d/bin"
+      socat_lib_dir: "{{ opt_dir }}/socat.d/lib"
+
+  - name: Create socat dir
+    file: path={{ item }} state=directory recurse=true
+    with_items:
+      - "{{ socat_bin_dir }}"
+      - "{{ socat_lib_dir }}"
+
+  - name: Extract socat files from hyperkube image
+    shell: |
+      CID=$(docker create {{ docker_kube_hyperkube_image.registry }}/{{ docker_kube_hyperkube_image.name }}:{{ docker_kube_hyperkube_image.tag }} bash)
+      docker cp $CID:/usr/bin/socat {{ socat_bin_dir }}
+      docker cp $CID:/lib/x86_64-linux-gnu/libwrap.so.0 {{ socat_lib_dir }}
+      docker cp $CID:/lib/x86_64-linux-gnu/libwrap.so.0.7.6 {{ socat_lib_dir }}
+      docker cp $CID:/usr/lib/x86_64-linux-gnu/libssl.so.1.0.0 {{ socat_lib_dir }}
+      docker cp $CID:/usr/lib/x86_64-linux-gnu/libcrypto.so.1.0.0 {{ socat_lib_dir }}
+      docker rm $CID
+
+  - name: Create socat wrapper script
+    template: src=socat.j2 dest={{ socat_dir }}/socat mode=0751
+
+  become: true
+  become_method: sudo

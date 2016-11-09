@@ -8,6 +8,9 @@ Requires=flanneld.service
 [Service]
 ExecStartPre=/usr/bin/mkdir -p {{ kube_manifests_dir }}
 
+# Add prepared socat path to enable kubectl port-forward
+Environment="PATH=/opt/socat.d:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
 # NOTES:
 # without --require-kubeconfig then --api-servers is always required even if --kubeconfig is defined
 

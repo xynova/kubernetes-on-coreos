@@ -27,3 +27,5 @@
 - name: INCLUDE Prepare system-account Kubeconfig
   include: prep-system-kubeconfig.yml
 
+- name: INCLUDE Prepare socat as it is not present in CoreOS distro
+  include: prepare-socat-files.yml
