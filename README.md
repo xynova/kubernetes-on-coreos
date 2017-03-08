@@ -1,4 +1,4 @@
-# Kubernetes v1.4 on CoreOS
+# Kubernetes v1.5 on CoreOS
 The purpose of this project is to have a boostrapable version of Kubernetes that is easy to understand and explain to others. It has been configured to support the following:
 
 - Etcd on high availability mode support
